@@ -28,7 +28,7 @@
                 <i class="fa-solid fa-cube text-white"></i>
             </div>
             <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400 truncate max-w-[200px] sm:max-w-none">
-                新創 ICE 決策室
+                新創 ICE 決策戰情室
             </h1>
         </div>
         <div class="flex items-center gap-3">
@@ -77,6 +77,7 @@
                 </div>
                 
                 <div class="flex-1 overflow-y-auto bg-gray-900/80 pb-6">
+                    <!-- MVP Tab -->
                     <div id="content-mvp" class="p-4 block">
                         <div class="mb-4 bg-gray-800 p-3 rounded-lg border border-gray-700">
                             <p class="text-xs text-emerald-400 mb-2"><i class="fa-solid fa-lightbulb"></i> <b>子任務原則：</b> 具體、可量化、阻力極小。</p>
@@ -103,6 +104,7 @@
                         <ul id="mvp-list" class="space-y-2"></ul>
                     </div>
 
+                    <!-- Market Tab -->
                     <div id="content-market" class="p-4 hidden space-y-4 text-sm">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
@@ -128,6 +130,7 @@
                         </div>
                     </div>
 
+                    <!-- Agent Tab -->
                     <div id="content-agent" class="p-4 hidden space-y-4">
                         <div class="bg-blue-900/20 border border-blue-500/30 p-4 rounded-lg">
                             <h4 class="text-blue-400 font-bold mb-2"><i class="fa-solid fa-robot"></i> Agent 自動化整合建議</h4>
@@ -143,7 +146,7 @@
         </section>
     </main>
 
-    <!-- Modals (Project, Calendar, Confirm) -->
+    <!-- Modals -->
     <div id="project-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity p-2 md:p-0">
         <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-2xl transform scale-95 transition-transform duration-300 relative flex flex-col max-h-[95vh] md:max-h-[90vh]">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-emerald-500"></div>
@@ -235,7 +238,7 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // 🔥 已經幫你寫死專屬金鑰，千萬不要再改了！
+        // 🔥 已經為你寫死的專屬金鑰，千萬不要再改了！
         const firebaseConfig = {
             apiKey: "AIzaSyDCYNYBRjcbYBCJ5NjpcUrk5JfuInJ1gKg",
             authDomain: "ice-project-manage-system.firebaseapp.com",
@@ -297,9 +300,18 @@
 
         const initFirebase = () => {
             onAuthStateChanged(auth, (user) => {
+                // 🛑 核心修復：強制清除舊的「匿名帳號」，避免產生破圖或無法點擊的狀況
+                if (user && user.isAnonymous) {
+                    console.log("偵測到舊版匿名帳號，執行清除以允許 Google 登入...");
+                    signOut(auth);
+                    return;
+                }
+
                 if (user) {
                     state.userId = user.uid;
-                    DOM.authStatus.innerHTML = `<img src="${user.photoURL}" class="w-6 h-6 rounded-full border border-gray-600"> <span class="hidden sm:inline text-gray-300">${user.displayName}</span> <button onclick="window.logout()" class="ml-2 text-gray-500 hover:text-red-400"><i class="fa-solid fa-right-from-bracket"></i></button>`;
+                    const photo = user.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
+                    const name = user.displayName || '使用者';
+                    DOM.authStatus.innerHTML = `<img src="${photo}" class="w-6 h-6 rounded-full border border-gray-600"> <span class="hidden sm:inline text-gray-300">${name}</span> <button onclick="window.logout()" class="ml-2 text-gray-500 hover:text-red-400"><i class="fa-solid fa-right-from-bracket"></i></button>`;
                     listenToProjects();
                 } else {
                     state.userId = null; state.projects = []; renderProjects(); updateChart(); ui.closeDashboard();
