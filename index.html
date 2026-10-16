@@ -13,50 +13,16 @@
             font-family: 'Inter', sans-serif;
             background-color: #0f172a;
             color: #f8fafc;
-            overflow: hidden; /* Prevent full page scroll, manage internally */
+            overflow: hidden; 
         }
-        
-        /* Custom Scrollbar for inner elements */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
-
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .toast-enter { transform: translateY(100%); opacity: 0; }
-        .toast-enter-active { transform: translateY(0); opacity: 1; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .toast-exit { transform: translateY(0); opacity: 1; }
-        .toast-exit-active { transform: translateY(100%); opacity: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        
-        /* Range slider styling */
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            background: transparent;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 16px;
-            width: 16px;
-            border-radius: 50%;
-            background: #3b82f6;
-            cursor: pointer;
-            margin-top: -6px;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            cursor: pointer;
-            background: #475569;
-            border-radius: 2px;
-        }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -6px; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #475569; border-radius: 2px; }
     </style>
 </head>
 <body class="h-screen flex flex-col">
@@ -84,22 +50,17 @@
     </header>
 
     <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
-        
-        <!-- Left Panel: Project List -->
         <aside class="w-full md:w-1/3 lg:w-1/4 glass-panel border-r border-gray-800 flex flex-col z-10 h-1/2 md:h-full">
             <div class="p-4 border-b border-gray-700 flex justify-between items-center">
                 <h2 class="font-semibold text-gray-200">專案清單</h2>
                 <span id="project-count" class="bg-gray-700 text-xs px-2 py-1 rounded-full text-gray-300">0</span>
             </div>
             <div id="project-list" class="flex-1 overflow-y-auto p-4 space-y-3">
-                <div class="text-center text-gray-500 mt-10">載入中...</div>
+                <div class="text-center text-gray-500 mt-10"><i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i><p>載入中...</p></div>
             </div>
         </aside>
 
-        <!-- Right Panel: Canvas & Project Dashboard -->
         <section class="flex-1 flex flex-col h-1/2 md:h-full relative bg-gray-900 shadow-inner">
-            
-            <!-- Canvas Container -->
             <div class="flex-1 relative p-2 md:p-6 w-full h-full flex items-center justify-center">
                 <canvas id="iceChart"></canvas>
             </div>
@@ -108,7 +69,6 @@
                 <div class="border-b border-gray-700 bg-gray-800/80 px-4 pt-3 flex justify-between items-end">
                     <div class="flex-1">
                         <h3 id="dashboard-title" class="text-lg font-bold text-blue-400 mb-2">專案名稱</h3>
-                        <!-- Tabs -->
                         <div class="flex gap-4 text-sm">
                             <button onclick="ui.switchTab('mvp')" id="tab-mvp" class="pb-2 border-b-2 border-blue-500 text-blue-400 font-medium transition">MVP 任務與進度</button>
                             <button onclick="ui.switchTab('market')" id="tab-market" class="pb-2 border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition">市場與商業策略</button>
@@ -120,14 +80,12 @@
                     </button>
                 </div>
                 
-                <!-- Tab Contents -->
                 <div class="flex-1 overflow-y-auto bg-gray-900/50">
-                    <!-- MVP Tab -->
                     <div id="content-mvp" class="p-4 block">
                         <div class="mb-4 bg-gray-800 p-3 rounded-lg border border-gray-700">
-                            <p class="text-xs text-emerald-400 mb-2"><i class="fa-solid fa-lightbulb"></i> <b>子專案/任務定義原則：</b> 具體、可量化、阻力極小，必須有明確的「完成標準 (DoD)」。</p>
+                            <p class="text-xs text-emerald-400 mb-2"><i class="fa-solid fa-lightbulb"></i> <b>子任務定義原則：</b> 具體、可量化、阻力極小，必須有明確的「完成標準」。</p>
                             <form id="mvp-form" class="flex flex-col gap-2">
-                                <input type="text" id="mvp-input" required placeholder="定義子任務目標 (例如：完成登入頁面 UI 切版)..." class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 text-white">
+                                <input type="text" id="mvp-input" required placeholder="定義子任務目標 (例如：完成首頁 UI 切版)..." class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 text-white">
                                 <div class="flex gap-2 items-center flex-wrap">
                                     <span class="text-xs text-gray-400"><i class="fa-regular fa-calendar"></i> 排程:</span>
                                     <input type="date" id="mvp-start" class="bg-gray-900 border border-gray-600 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500 text-gray-300">
@@ -137,7 +95,6 @@
                                 </div>
                             </form>
                         </div>
-                        <!-- Progress Bar -->
                         <div class="mb-4">
                             <div class="flex justify-between text-xs text-gray-400 mb-1">
                                 <span>MVP 達成率</span>
@@ -150,7 +107,6 @@
                         <ul id="mvp-list" class="space-y-2"></ul>
                     </div>
 
-                    <!-- Market Tab -->
                     <div id="content-market" class="p-4 hidden space-y-4 text-sm">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
@@ -176,12 +132,10 @@
                         </div>
                     </div>
 
-                    <!-- Agent Tab -->
                     <div id="content-agent" class="p-4 hidden space-y-4">
                         <div class="bg-blue-900/20 border border-blue-500/30 p-4 rounded-lg">
                             <h4 class="text-blue-400 font-bold mb-2"><i class="fa-solid fa-robot"></i> Agent 自動化整合建議</h4>
-                            <p class="text-sm text-gray-300 mb-2">未來可在此配置 Webhook 或是 Prompt 模板。系統可以抓取您在 MVP 任務中標註為 <code>[Auto]</code> 的子任務，自動拋送給您的 n8n 或 Langflow 代理執行。</p>
-                            <p class="text-xs text-gray-400">目前為樣板預留區，可將您的 AI 提示詞或系統提示 (System Prompt) 記錄於此。</p>
+                            <p class="text-sm text-gray-300 mb-2">未來可在此配置 Webhook 或 Prompt 模板，系統可自動拋送子任務給 n8n 或 Langflow 執行。</p>
                         </div>
                         <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
                             <h4 class="text-gray-300 font-bold mb-2 text-sm">Agent 系統提示詞 / 執行腳本</h4>
@@ -196,7 +150,6 @@
     <div id="project-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity">
         <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-11/12 max-w-2xl transform scale-95 transition-transform duration-300 relative flex flex-col max-h-[90vh]">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-emerald-500"></div>
-            
             <div class="p-6 border-b border-gray-700 flex justify-between items-center shrink-0">
                 <h2 id="modal-title" class="text-xl font-bold text-white">新增專案與市場設定</h2>
                 <button type="button" onclick="ui.closeProjectModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -206,16 +159,13 @@
                 <form id="project-form" class="space-y-8">
                     <input type="hidden" id="project-id">
                     
-                    <!-- Core Section -->
                     <section class="space-y-4">
                         <h3 class="text-emerald-400 font-semibold border-b border-gray-700 pb-1"><i class="fa-solid fa-rocket"></i> 1. 核心定義 (大專案原則)</h3>
-                        <p class="text-xs text-gray-400">💡 <b>原則提示：</b> 解決什麼核心痛點？是否具備市場剛需？能否在 1~3 個月內發布 MVP 驗證？</p>
-                        
+                        <p class="text-xs text-gray-400">💡 <b>原則提示：</b> 解決什麼核心痛點？是否具備市場剛需？能否在 1~3 個月內發布 MVP？</p>
                         <div>
                             <label class="block text-sm text-gray-300 mb-1">專案名稱</label>
-                            <input type="text" id="p-name" required placeholder="例如：自動化 IG 貼文產生器" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition">
+                            <input type="text" id="p-name" required class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition">
                         </div>
-                        
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-900/50 p-4 rounded-lg border border-gray-700">
                             <div>
                                 <div class="flex justify-between text-xs mb-1"><span class="text-emerald-400">影響力 (Impact)</span><span id="val-impact" class="font-bold text-white">5</span></div>
@@ -232,52 +182,45 @@
                         </div>
                     </section>
 
-                    <!-- Market Section -->
                     <section class="space-y-4">
                         <h3 class="text-blue-400 font-semibold border-b border-gray-700 pb-1"><i class="fa-solid fa-chart-pie"></i> 2. 市場與行銷設定 (自然流量準備)</h3>
-                        
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm text-gray-300 mb-1">目標受眾樣態 (Target Audience)</label>
-                                <textarea id="p-audience" rows="2" placeholder="誰最需要這個？例如：沒有時間經營粉專的一人公司創辦人" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
+                                <textarea id="p-audience" rows="2" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
                             </div>
                             <div>
                                 <label class="block text-sm text-gray-300 mb-1">競爭對手分析 (Competitors)</label>
-                                <textarea id="p-competitors" rows="2" placeholder="市面上的替代方案？他們的弱點？" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
+                                <textarea id="p-competitors" rows="2" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
                             </div>
                         </div>
-                        
                         <div>
                             <label class="block text-sm text-gray-300 mb-1">勝出關鍵優勢資源 (Key Advantages)</label>
-                            <input type="text" id="p-advantages" placeholder="例如：我有獨家的爬蟲技術、或是特定社群的管理權限" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                            <input type="text" id="p-advantages" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
                         </div>
-
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm text-gray-300 mb-1">目標宣傳平台 (貼連結)</label>
-                                <input type="text" id="p-platforms" placeholder="https://vocus.cc/..., https://twitter.com/..." class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
-                                <p class="text-[10px] text-gray-500 mt-1">初期自然流量來源，輸入網址以便後續直接點擊宣傳。</p>
+                                <label class="block text-sm text-gray-300 mb-1">目標宣傳平台 (輸入網址)</label>
+                                <input type="text" id="p-platforms" placeholder="https://..." class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-300 mb-1">金流平台樣板 (變現渠道)</label>
+                                <label class="block text-sm text-gray-300 mb-1">金流平台樣板</label>
                                 <select id="p-payment" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
                                     <option value="無 / 免費開源">無 / 免費開源</option>
-                                    <option value="Stripe (國際信用卡)">Stripe (國際信用卡)</option>
-                                    <option value="綠界科技 ECPay (台灣)">綠界科技 ECPay (台灣)</option>
-                                    <option value="藍新金流 NewebPay (台灣)">藍新金流 NewebPay (台灣)</option>
-                                    <option value="Gumroad / Lemon Squeezy (數位商品)">Gumroad / Lemon Squeezy (數位商品)</option>
-                                    <option value="Buy Me a Coffee / Patreon (贊助)">Buy Me a Coffee / Patreon (贊助)</option>
+                                    <option value="Stripe (國際)">Stripe (國際)</option>
+                                    <option value="綠界科技 / 藍新 (台灣)">綠界科技 / 藍新 (台灣)</option>
+                                    <option value="Gumroad / Lemon Squeezy">Gumroad / Lemon Squeezy</option>
+                                    <option value="Patreon / Buy Me a Coffee">Patreon / Buy Me a Coffee</option>
                                 </select>
                             </div>
                         </div>
                     </section>
 
-                    <!-- Agent Section -->
                     <section class="space-y-4">
                         <h3 class="text-purple-400 font-semibold border-b border-gray-700 pb-1"><i class="fa-solid fa-robot"></i> 3. Agent 自動化設定 (預留)</h3>
                         <div>
-                            <label class="block text-sm text-gray-300 mb-1">自動化 Agent Prompt / Webhook 概念</label>
-                            <textarea id="p-agent" rows="2" placeholder="設定給 AI 的系統提示詞，或是預定要拋接的 n8n webhook 邏輯..." class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 font-mono"></textarea>
+                            <label class="block text-sm text-gray-300 mb-1">Agent Prompt / Webhook 概念</label>
+                            <textarea id="p-agent" rows="2" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 font-mono"></textarea>
                         </div>
                     </section>
                 </form>
@@ -290,84 +233,72 @@
         </div>
     </div>
 
-    <!-- Calendar Modal -->
     <div id="calendar-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity">
         <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-11/12 max-w-4xl h-[80vh] transform scale-95 transition-transform duration-300 relative flex flex-col overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
-            
             <div class="p-4 border-b border-gray-700 flex justify-between items-center shrink-0">
                 <h2 class="text-xl font-bold text-white flex items-center gap-2"><i class="fa-regular fa-calendar-days text-indigo-400"></i> 任務日曆總覽</h2>
                 <button type="button" onclick="ui.closeCalendarModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-
             <div class="flex-1 flex flex-col md:flex-row overflow-hidden bg-gray-900/50">
-                <!-- Calendar Grid Area -->
                 <div class="w-full md:w-3/5 p-4 md:p-6 border-b md:border-b-0 md:border-r border-gray-700 flex flex-col">
                     <div class="flex justify-between items-center mb-6">
-                        <button onclick="changeMonth(-1)" class="text-gray-400 hover:text-white px-3 py-1 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-500 transition"><i class="fa-solid fa-chevron-left"></i></button>
-                        <h3 id="calendar-month-year" class="font-bold text-lg text-gray-200">2026 年 10 月</h3>
-                        <button onclick="changeMonth(1)" class="text-gray-400 hover:text-white px-3 py-1 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-500 transition"><i class="fa-solid fa-chevron-right"></i></button>
+                        <button onclick="changeMonth(-1)" class="text-gray-400 hover:text-white px-3 py-1 bg-gray-800 rounded-lg border border-gray-700 transition"><i class="fa-solid fa-chevron-left"></i></button>
+                        <h3 id="calendar-month-year" class="font-bold text-lg text-gray-200"></h3>
+                        <button onclick="changeMonth(1)" class="text-gray-400 hover:text-white px-3 py-1 bg-gray-800 rounded-lg border border-gray-700 transition"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
                     <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-500 mb-2">
                         <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
                     </div>
-                    <div id="calendar-grid" class="grid grid-cols-7 gap-2 flex-1 auto-rows-fr">
-                        <!-- JS Generated Days -->
-                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-2 flex-1 auto-rows-fr"></div>
                 </div>
-                
-                <!-- Day Tasks List Area -->
                 <div class="w-full md:w-2/5 p-4 md:p-6 flex flex-col overflow-y-auto relative">
                     <h4 id="selected-date-title" class="font-bold text-indigo-400 mb-4 pb-2 border-b border-gray-700 text-lg sticky top-0 bg-gray-900/90 backdrop-blur z-10 pt-1">選擇日期</h4>
-                    <div id="day-tasks-list" class="space-y-4">
-                        <div class="text-gray-500 text-sm text-center mt-10">點擊左側日期查看任務</div>
-                    </div>
+                    <div id="day-tasks-list" class="space-y-4"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Confirm Dialog -->
     <div id="confirm-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity">
         <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 max-w-sm w-11/12 transform scale-95 transition-transform duration-300 text-center">
-            <div class="w-12 h-12 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center text-xl mx-auto mb-4">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
             <h3 class="text-lg font-bold mb-2 text-white">確定刪除專案？</h3>
-            <p class="text-sm text-gray-400 mb-6">這將會刪除該專案及其所有的 MVP 步驟與商業設定。</p>
-            <div class="flex gap-3">
+            <div class="flex gap-3 mt-6">
                 <button onclick="ui.closeConfirmModal()" class="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition text-sm text-white">取消</button>
                 <button id="confirm-btn" class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition text-sm font-semibold">確認刪除</button>
             </div>
         </div>
     </div>
-
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
     <script type="module">
-        // 1. 這裡必須放在最頂層，且使用 https 網址 (純 HTML 網頁專用)
+        // 絕對安全的 CDN 匯入方式 (適用於純 HTML 網頁)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // 2. 這是你專屬的設定檔 (已經幫你整理好了)
-        const firebaseConfig = {
-            apiKey: "AIzaSyDCYNYBRjcbYBCJ5NjpcUrk5JfuInJ1gKg",
-            authDomain: "ice-project-manage-system.firebaseapp.com",
-            projectId: "ice-project-manage-system",
-            storageBucket: "ice-project-manage-system.firebasestorage.app",
-            messagingSenderId: "526672568868",
-            appId: "1:526672568868:web:8ce69400bbeee3f1e4eeb1",
-            measurementId: "G-X57P8PLTNV"
-        };
+        // 智慧判斷機制：
+        // 如果在 AI Canvas 環境中，使用系統提供的設定；如果在你的 GitHub，則使用你專屬的金鑰
+        let config;
+        if (typeof __firebase_config !== 'undefined') {
+            config = JSON.parse(__firebase_config);
+        } else {
+            config = {
+                apiKey: "AIzaSyDCYNYBRjcbYBCJ5NjpcUrk5JfuInJ1gKg",
+                authDomain: "ice-project-manage-system.firebaseapp.com",
+                projectId: "ice-project-manage-system",
+                storageBucket: "ice-project-manage-system.firebasestorage.app",
+                messagingSenderId: "526672568868",
+                appId: "1:526672568868:web:8ce69400bbeee3f1e4eeb1",
+                measurementId: "G-X57P8PLTNV"
+            };
+        }
 
         const state = {
             projects: [],
             selectedProjectId: null,
             userId: null,
-            appId: 'ice-matrix-app',
+            appId: typeof __app_id !== 'undefined' ? __app_id : 'github-ice-matrix',
             chartInstance: null,
             activeTab: 'mvp',
             calendarDate: new Date(),
@@ -392,139 +323,51 @@
             showToast: (msg, type = 'success') => {
                 const container = document.getElementById('toast-container');
                 const toast = document.createElement('div');
-                const colors = type === 'success' ? 'bg-emerald-600' : (type === 'error' ? 'bg-red-600' : 'bg-blue-600');
-                const icon = type === 'success' ? 'fa-check' : (type === 'error' ? 'fa-xmark' : 'fa-info');
-                
-                toast.className = `flex items-center gap-3 ${colors} text-white px-4 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-y-full opacity-0`;
-                toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span class="text-sm font-medium">${msg}</span>`;
-                
+                toast.className = `flex items-center gap-3 ${type === 'success' ? 'bg-emerald-600' : 'bg-red-600'} text-white px-4 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-y-full opacity-0`;
+                toast.innerHTML = `<span class="text-sm font-medium">${msg}</span>`;
                 container.appendChild(toast);
-                requestAnimationFrame(() => { toast.classList.remove('translate-y-full', 'opacity-0'); });
-
-                setTimeout(() => {
-                    toast.classList.add('translate-y-full', 'opacity-0');
-                    setTimeout(() => toast.remove(), 300);
-                }, 3000);
+                requestAnimationFrame(() => toast.classList.remove('translate-y-full', 'opacity-0'));
+                setTimeout(() => { toast.classList.add('translate-y-full', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
             },
             openProjectModal: (projectId = null) => {
-                const modal = DOM.projectModal;
-                const inner = modal.querySelector('div');
-                
+                const modal = DOM.projectModal; const inner = modal.querySelector('div');
                 if (projectId) {
                     const p = state.projects.find(x => x.id === projectId);
-                    if(!p) return;
                     document.getElementById('project-id').value = p.id;
                     document.getElementById('p-name').value = p.name;
-                    document.getElementById('p-impact').value = p.impact;
-                    document.getElementById('val-impact').innerText = p.impact;
-                    document.getElementById('p-confidence').value = p.confidence;
-                    document.getElementById('val-confidence').innerText = p.confidence;
-                    document.getElementById('p-ease').value = p.ease;
-                    document.getElementById('val-ease').innerText = p.ease;
-                    
-                    document.getElementById('p-audience').value = p.audience || '';
-                    document.getElementById('p-competitors').value = p.competitors || '';
-                    document.getElementById('p-advantages').value = p.advantages || '';
-                    document.getElementById('p-platforms').value = p.platforms || '';
-                    document.getElementById('p-payment').value = p.payment || '無 / 免費開源';
-                    document.getElementById('p-agent').value = p.agent || '';
-                    
-                    DOM.modalTitle.innerText = "編輯專案與市場設定";
+                    ['impact', 'confidence', 'ease'].forEach(k => { document.getElementById(`p-${k}`).value = p[k]; document.getElementById(`val-${k}`).innerText = p[k]; });
+                    ['audience', 'competitors', 'advantages', 'platforms', 'payment', 'agent'].forEach(k => document.getElementById(`p-${k}`).value = p[k] || '');
+                    DOM.modalTitle.innerText = "編輯專案";
                 } else {
-                    DOM.projectForm.reset();
-                    document.getElementById('project-id').value = '';
-                    ['impact', 'confidence', 'ease'].forEach(k => {
-                        document.getElementById(`val-${k}`).innerText = '5';
-                    });
-                    document.getElementById('p-payment').value = '無 / 免費開源';
-                    DOM.modalTitle.innerText = "新增專案與市場設定";
+                    DOM.projectForm.reset(); document.getElementById('project-id').value = '';
+                    ['impact', 'confidence', 'ease'].forEach(k => document.getElementById(`val-${k}`).innerText = '5');
+                    DOM.modalTitle.innerText = "新增專案";
                 }
-
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                requestAnimationFrame(() => {
-                    modal.classList.remove('opacity-0');
-                    inner.classList.remove('scale-95');
-                });
+                modal.classList.remove('hidden'); modal.classList.add('flex'); requestAnimationFrame(() => { modal.classList.remove('opacity-0'); inner.classList.remove('scale-95'); });
             },
-            closeProjectModal: () => {
-                const modal = DOM.projectModal;
-                const inner = modal.querySelector('div');
-                modal.classList.add('opacity-0');
-                inner.classList.add('scale-95');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                }, 300);
-            },
-            openConfirmModal: (actionCallback) => {
-                const modal = DOM.confirmModal;
-                const btn = document.getElementById('confirm-btn');
-                btn.onclick = () => { actionCallback(); ui.closeConfirmModal(); };
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                requestAnimationFrame(() => { modal.classList.remove('opacity-0'); modal.querySelector('div').classList.remove('scale-95'); });
-            },
-            closeConfirmModal: () => {
-                const modal = DOM.confirmModal;
-                modal.classList.add('opacity-0');
-                modal.querySelector('div').classList.add('scale-95');
-                setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
-            },
-            openCalendarModal: () => {
-                const modal = document.getElementById('calendar-modal');
-                state.calendarDate = new Date();
-                const todayStr = state.calendarDate.toISOString().split('T')[0];
-                window.selectDate(todayStr);
-                window.renderCalendar();
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                requestAnimationFrame(() => {
-                    modal.classList.remove('opacity-0');
-                    modal.querySelector('div').classList.remove('scale-95');
-                });
-            },
-            closeCalendarModal: () => {
-                const modal = document.getElementById('calendar-modal');
-                modal.classList.add('opacity-0');
-                modal.querySelector('div').classList.add('scale-95');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                }, 300);
-            },
-            openDashboard: (projectId) => {
-                state.selectedProjectId = projectId;
-                renderDashboardContent();
-                DOM.dashboardPanel.classList.remove('translate-y-full');
-            },
-            closeDashboard: () => {
-                DOM.dashboardPanel.classList.add('translate-y-full');
-                state.selectedProjectId = null;
-            },
-            switchTab: (tabName) => {
-                state.activeTab = tabName;
-                ['mvp', 'market', 'agent'].forEach(t => {
-                    document.getElementById(`tab-${t}`).classList.remove('border-blue-500', 'text-blue-400');
-                    document.getElementById(`tab-${t}`).classList.add('border-transparent', 'text-gray-400');
-                    document.getElementById(`content-${t}`).classList.add('hidden');
-                    document.getElementById(`content-${t}`).classList.remove('block');
-                });
-                
-                document.getElementById(`tab-${tabName}`).classList.remove('border-transparent', 'text-gray-400');
-                document.getElementById(`tab-${tabName}`).classList.add('border-blue-500', 'text-blue-400');
-                document.getElementById(`content-${tabName}`).classList.remove('hidden');
-                document.getElementById(`content-${tabName}`).classList.add('block');
-            }
+            closeProjectModal: () => { DOM.projectModal.classList.add('opacity-0'); DOM.projectModal.querySelector('div').classList.add('scale-95'); setTimeout(() => { DOM.projectModal.classList.add('hidden'); DOM.projectModal.classList.remove('flex'); }, 300); },
+            openConfirmModal: (cb) => { document.getElementById('confirm-btn').onclick = () => { cb(); ui.closeConfirmModal(); }; DOM.confirmModal.classList.remove('hidden', 'opacity-0'); DOM.confirmModal.classList.add('flex'); },
+            closeConfirmModal: () => { DOM.confirmModal.classList.add('opacity-0', 'hidden'); DOM.confirmModal.classList.remove('flex'); },
+            openCalendarModal: () => { const m = document.getElementById('calendar-modal'); state.calendarDate = new Date(); window.selectDate(state.calendarDate.toISOString().split('T')[0]); window.renderCalendar(); m.classList.remove('hidden'); m.classList.add('flex'); requestAnimationFrame(()=> m.classList.remove('opacity-0')); },
+            closeCalendarModal: () => { document.getElementById('calendar-modal').classList.add('opacity-0', 'hidden'); document.getElementById('calendar-modal').classList.remove('flex'); },
+            openDashboard: (id) => { state.selectedProjectId = id; renderDashboardContent(); DOM.dashboardPanel.classList.remove('translate-y-full'); },
+            closeDashboard: () => { DOM.dashboardPanel.classList.add('translate-y-full'); state.selectedProjectId = null; },
+            switchTab: (tab) => { ['mvp', 'market', 'agent'].forEach(t => { document.getElementById(`tab-${t}`).className = `pb-2 border-b-2 font-medium transition ${t===tab ? 'border-blue-500 text-blue-400' : 'border-transparent text-gray-400 hover:text-gray-200'}`; document.getElementById(`content-${t}`).className = `p-4 ${t===tab ? 'block' : 'hidden'} space-y-4`; }); }
         };
 
         let db, auth;
         const initFirebase = async () => {
             try {
-                // 3. 乾淨的初始化邏輯
-                const app = initializeApp(firebaseConfig);
+                const app = initializeApp(config);
                 db = getFirestore(app);
                 auth = getAuth(app);
+
+                // 處理身份驗證邏輯
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
 
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
@@ -535,335 +378,100 @@
                         DOM.authStatus.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-yellow-500"></i> 登入中...`;
                     }
                 });
-
-                await signInAnonymously(auth);
             } catch (err) {
-                console.error("Firebase 錯誤:", err);
+                console.error("Firebase 初始化錯誤:", err);
                 DOM.authStatus.innerHTML = `<i class="fa-solid fa-xmark text-red-500"></i> 連線失敗`;
-                DOM.projectList.innerHTML = `<div class="bg-red-900/30 p-4 rounded-lg text-center mt-4"><p class="text-xs text-red-400">${err.message}</p></div>`;
+                DOM.projectList.innerHTML = `<div class="p-4 text-center text-red-400">${err.message}</div>`;
             }
         };
 
         const listenToProjects = () => {
             if (!state.userId) return;
-            const ref = collection(db, 'artifacts', state.appId, 'users', state.userId, 'projects');
-            onSnapshot(ref, (snapshot) => {
-                const arr = [];
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    data.score = data.impact * data.confidence * data.ease;
-                    arr.push(data);
-                });
-                arr.sort((a, b) => b.score - a.score);
-                state.projects = arr;
-                renderProjects();
-                updateChart();
+            onSnapshot(collection(db, 'artifacts', state.appId, 'users', state.userId, 'projects'), (snapshot) => {
+                const arr = []; snapshot.forEach(doc => { const d = doc.data(); d.score = d.impact * d.confidence * d.ease; arr.push(d); });
+                state.projects = arr.sort((a, b) => b.score - a.score);
+                renderProjects(); updateChart();
                 if (state.selectedProjectId) renderDashboardContent();
-            }, (error) => { console.error(error); ui.showToast("同步資料失敗", "error"); });
+            }, (err) => ui.showToast("資料讀取失敗", "error"));
         };
 
         const saveProject = async (e) => {
             e.preventDefault();
-            if (!state.userId) return ui.showToast("未登入，無法儲存", "error");
-
             const id = document.getElementById('project-id').value || crypto.randomUUID();
-            const projectData = {
-                id,
-                name: document.getElementById('p-name').value.trim(),
-                impact: parseInt(document.getElementById('p-impact').value),
-                confidence: parseInt(document.getElementById('p-confidence').value),
-                ease: parseInt(document.getElementById('p-ease').value),
-                audience: document.getElementById('p-audience').value.trim(),
-                competitors: document.getElementById('p-competitors').value.trim(),
-                advantages: document.getElementById('p-advantages').value.trim(),
-                platforms: document.getElementById('p-platforms').value.trim(),
-                payment: document.getElementById('p-payment').value,
-                agent: document.getElementById('p-agent').value.trim(),
-                mvpSteps: [], 
-                updatedAt: new Date().toISOString()
-            };
-
-            const existing = state.projects.find(p => p.id === id);
-            if (existing) {
-                projectData.mvpSteps = existing.mvpSteps || [];
-                projectData.createdAt = existing.createdAt;
-            } else {
-                projectData.createdAt = projectData.updatedAt;
-            }
-
-            try {
-                const docRef = doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', id);
-                await setDoc(docRef, projectData);
-                ui.closeProjectModal();
-                ui.showToast(existing ? "專案已更新" : "專案已建立");
-            } catch (err) { console.error(err); ui.showToast("儲存失敗", "error"); }
+            const p = { id, name: document.getElementById('p-name').value.trim(), impact: +document.getElementById('p-impact').value, confidence: +document.getElementById('p-confidence').value, ease: +document.getElementById('p-ease').value, audience: document.getElementById('p-audience').value, competitors: document.getElementById('p-competitors').value, advantages: document.getElementById('p-advantages').value, platforms: document.getElementById('p-platforms').value, payment: document.getElementById('p-payment').value, agent: document.getElementById('p-agent').value, mvpSteps: state.projects.find(x=>x.id===id)?.mvpSteps || [] };
+            await setDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', id), p);
+            ui.closeProjectModal(); ui.showToast("專案已儲存");
         };
 
-        const deleteProject = async (id) => {
-            if (!state.userId) return;
-            try {
-                const docRef = doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', id);
-                await deleteDoc(docRef);
-                ui.showToast("專案已刪除");
-                if (state.selectedProjectId === id) ui.closeDashboard();
-            } catch (err) { console.error(err); ui.showToast("刪除失敗", "error"); }
-        };
+        const deleteProject = async (id) => { await deleteDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', id)); ui.showToast("專案已刪除"); if (state.selectedProjectId === id) ui.closeDashboard(); };
+        window.deleteProjectPrompt = (id) => ui.openConfirmModal(() => deleteProject(id));
 
         const addMvpStep = async (e) => {
             e.preventDefault();
-            if (!state.userId || !state.selectedProjectId) return;
-            const input = document.getElementById('mvp-input');
-            const startInput = document.getElementById('mvp-start');
-            const endInput = document.getElementById('mvp-end');
-            
-            const text = input.value.trim();
-            if (!text) return;
-
-            const project = state.projects.find(p => p.id === state.selectedProjectId);
-            if (!project) return;
-
-            const newStep = { 
-                id: crypto.randomUUID(), 
-                text: text, 
-                completed: false,
-                startDate: startInput.value || null,
-                endDate: endInput.value || null
-            };
-            const updatedSteps = [...(project.mvpSteps || []), newStep];
-            
-            try {
-                const docRef = doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', project.id);
-                await updateDoc(docRef, { mvpSteps: updatedSteps });
-                input.value = '';
-                startInput.value = '';
-                endInput.value = '';
-            } catch (err) { console.error(err); ui.showToast("新增任務失敗", "error"); }
+            const text = document.getElementById('mvp-input').value.trim(); if (!text) return;
+            const p = state.projects.find(x => x.id === state.selectedProjectId);
+            const step = { id: crypto.randomUUID(), text, completed: false, startDate: document.getElementById('mvp-start').value, endDate: document.getElementById('mvp-end').value };
+            await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', p.id), { mvpSteps: [...(p.mvpSteps || []), step] });
+            DOM.mvpForm.reset();
         };
 
-        const toggleMvpStep = async (projectId, stepId) => {
-            if (!state.userId) return;
-            const project = state.projects.find(p => p.id === projectId);
-            const updatedSteps = project.mvpSteps.map(step => step.id === stepId ? { ...step, completed: !step.completed } : step);
-            try {
-                const docRef = doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', projectId);
-                await updateDoc(docRef, { mvpSteps: updatedSteps });
-            } catch (err) { console.error(err); ui.showToast("狀態更新失敗", "error"); }
-        };
+        window.toggleMvp = async (pid, sid) => { const p = state.projects.find(x=>x.id===pid); await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', pid), { mvpSteps: p.mvpSteps.map(s => s.id === sid ? {...s, completed: !s.completed} : s) }); };
+        window.deleteMvp = async (pid, sid) => { const p = state.projects.find(x=>x.id===pid); await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', pid), { mvpSteps: p.mvpSteps.filter(s => s.id !== sid) }); };
 
-        const deleteMvpStep = async (projectId, stepId) => {
-             if (!state.userId) return;
-            const project = state.projects.find(p => p.id === projectId);
-            const updatedSteps = project.mvpSteps.filter(step => step.id !== stepId);
-            try {
-                const docRef = doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', projectId);
-                await updateDoc(docRef, { mvpSteps: updatedSteps });
-            } catch (err) { console.error(err); ui.showToast("刪除步驟失敗", "error"); }
-        };
-
-        window.deleteProjectPrompt = (id) => ui.openConfirmModal(() => deleteProject(id));
-        window.toggleMvp = toggleMvpStep;
-        window.deleteMvp = deleteMvpStep;
-
-        window.changeMonth = (dir) => {
-            state.calendarDate.setMonth(state.calendarDate.getMonth() + dir);
-            window.renderCalendar();
-        };
-
-        window.selectDate = (dateStr) => {
-            state.selectedDateStr = dateStr;
-            window.renderCalendar(); 
-            renderDayTasks(dateStr);
-        };
-
-        const isDateInRange = (dateStr, startStr, endStr) => {
-            if (!startStr && !endStr) return false;
-            const target = new Date(dateStr).getTime();
-            const start = startStr ? new Date(startStr).getTime() : 0;
-            const end = endStr ? new Date(endStr).getTime() : Infinity;
-            return target >= start && target <= end;
-        };
+        const isDateInRange = (d, s, e) => { if (!s && !e) return false; const target = new Date(d).getTime(), start = s ? new Date(s).getTime() : 0, end = e ? new Date(e).getTime() : Infinity; return target >= start && target <= end; };
+        
+        window.changeMonth = (dir) => { state.calendarDate.setMonth(state.calendarDate.getMonth() + dir); window.renderCalendar(); };
+        window.selectDate = (dateStr) => { state.selectedDateStr = dateStr; window.renderCalendar(); renderDayTasks(dateStr); };
 
         const renderDayTasks = (dateStr) => {
-            const titleEl = document.getElementById('selected-date-title');
-            const listEl = document.getElementById('day-tasks-list');
-            titleEl.innerHTML = `<i class="fa-solid fa-list-check"></i> ${dateStr} 任務清單`;
-            
-            let html = '';
-            let tasksFound = 0;
-
+            document.getElementById('selected-date-title').innerHTML = `<i class="fa-solid fa-list-check"></i> ${dateStr} 任務清單`;
+            let html = '', count = 0;
             state.projects.forEach(p => {
-                if (!p.mvpSteps) return;
-                const dailyTasks = p.mvpSteps.filter(step => {
-                    if (step.startDate === dateStr || step.endDate === dateStr) return true;
-                    return isDateInRange(dateStr, step.startDate, step.endDate);
-                });
-
-                if (dailyTasks.length > 0) {
-                    html += `<div class="mb-4 bg-gray-800/50 p-3 rounded-lg border border-gray-700">
-                        <div class="text-xs font-bold text-blue-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-cube"></i> ${p.name}</div>
-                        <div class="space-y-2">`;
-                    
-                    dailyTasks.forEach(t => {
-                        html += `
-                            <div class="bg-gray-900 p-2.5 rounded border ${t.completed ? 'border-emerald-500/30 bg-emerald-900/10' : 'border-gray-600'} flex items-start gap-3 transition">
-                                <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleMvp('${p.id}', '${t.id}'); setTimeout(()=>renderDayTasks('${dateStr}'), 300)" class="mt-0.5 w-4 h-4 rounded text-indigo-600 bg-gray-800 border-gray-500 cursor-pointer">
-                                <span class="text-sm ${t.completed ? 'text-gray-500 line-through' : 'text-gray-200'} flex-1 leading-tight">${t.text}</span>
-                            </div>
-                        `;
-                    });
-                    
-                    html += `</div></div>`;
-                    tasksFound += dailyTasks.length;
+                const tasks = (p.mvpSteps||[]).filter(s => s.startDate === dateStr || s.endDate === dateStr || isDateInRange(dateStr, s.startDate, s.endDate));
+                if (tasks.length > 0) {
+                    html += `<div class="mb-4 bg-gray-800/50 p-3 rounded-lg border border-gray-700"><div class="text-xs font-bold text-blue-400 mb-2">${p.name}</div><div class="space-y-2">`;
+                    tasks.forEach(t => html += `<div class="bg-gray-900 p-2.5 rounded border ${t.completed?'border-emerald-500/30':'border-gray-600'} flex gap-3"><input type="checkbox" ${t.completed?'checked':''} onchange="toggleMvp('${p.id}', '${t.id}'); setTimeout(()=>renderDayTasks('${dateStr}'), 300)" class="mt-0.5 w-4 h-4"><span class="text-sm ${t.completed?'text-gray-500 line-through':'text-gray-200'}">${t.text}</span></div>`);
+                    html += `</div></div>`; count++;
                 }
             });
-
-            if (tasksFound === 0) {
-                listEl.innerHTML = `<div class="text-gray-500 text-sm text-center mt-12 flex flex-col items-center"><div class="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center mb-4"><i class="fa-regular fa-face-smile text-2xl text-gray-400"></i></div><p>這一天很清閒，<br>沒有安排任何任務！</p></div>`;
-            } else {
-                listEl.innerHTML = html;
-            }
+            document.getElementById('day-tasks-list').innerHTML = count ? html : `<div class="text-gray-500 text-sm text-center mt-12">這一天沒有安排任務！</div>`;
         };
 
         window.renderCalendar = () => {
-            const year = state.calendarDate.getFullYear();
-            const month = state.calendarDate.getMonth();
-            document.getElementById('calendar-month-year').innerText = `${year} 年 ${month + 1} 月`;
-
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            
-            const grid = document.getElementById('calendar-grid');
+            const y = state.calendarDate.getFullYear(), m = state.calendarDate.getMonth();
+            document.getElementById('calendar-month-year').innerText = `${y} 年 ${m + 1} 月`;
             let html = '';
-
-            for (let i = 0; i < firstDay; i++) {
-                html += `<div class="bg-transparent"></div>`;
+            for (let i = 0; i < new Date(y, m, 1).getDay(); i++) html += `<div></div>`;
+            const todayStr = new Date().toISOString().split('T')[0];
+            for (let i = 1; i <= new Date(y, m + 1, 0).getDate(); i++) {
+                const dateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const hasTasks = state.projects.some(p => (p.mvpSteps||[]).some(s => isDateInRange(dateStr, s.startDate, s.endDate)));
+                let cls = `flex flex-col items-center justify-center p-2 rounded-xl cursor-pointer transition relative border ${dateStr === state.selectedDateStr ? 'bg-indigo-600 border-indigo-500 text-white' : dateStr === todayStr ? 'bg-gray-800 border-blue-500 text-blue-400' : 'bg-gray-800 border-gray-700 text-gray-300'}`;
+                html += `<div class="${cls}" onclick="selectDate('${dateStr}')"><span class="text-sm font-bold">${i}</span>${hasTasks ? '<div class="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-emerald-400"></div>' : ''}</div>`;
             }
-
-            const today = new Date();
-            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
-            for (let i = 1; i <= daysInMonth; i++) {
-                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                
-                let hasTasks = false;
-                state.projects.forEach(p => {
-                    if (p.mvpSteps && p.mvpSteps.some(step => isDateInRange(dateStr, step.startDate, step.endDate))) {
-                        hasTasks = true;
-                    }
-                });
-
-                const isToday = dateStr === todayStr;
-                const isSelected = dateStr === state.selectedDateStr;
-                
-                let classes = "flex flex-col items-center justify-center p-2 rounded-xl cursor-pointer transition relative group border ";
-                
-                if (isSelected) {
-                    classes += "bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/30 ";
-                } else if (isToday) {
-                    classes += "bg-gray-800 border-blue-500 text-blue-400 hover:bg-gray-700 ";
-                } else {
-                    classes += "bg-gray-800 border-gray-700 hover:border-gray-500 text-gray-300 hover:bg-gray-700 ";
-                }
-
-                html += `
-                    <div class="${classes}" onclick="selectDate('${dateStr}')">
-                        <span class="text-sm font-bold z-10">${i}</span>
-                        ${hasTasks ? '<div class="absolute bottom-1.5 w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_5px_#34d399]"></div>' : ''}
-                    </div>
-                `;
-            }
-            grid.innerHTML = html;
+            document.getElementById('calendar-grid').innerHTML = html;
         };
 
         const renderProjects = () => {
             DOM.projectCount.innerText = state.projects.length;
-            if (state.projects.length === 0) {
-                DOM.projectList.innerHTML = `<div class="text-center text-gray-500 mt-10"><i class="fa-regular fa-folder-open text-3xl mb-2 opacity-50"></i><p class="text-sm">尚未建立專案<br>點擊右上角新增</p></div>`;
-                return;
-            }
-
-            DOM.projectList.innerHTML = state.projects.map(p => {
-                const steps = p.mvpSteps || [];
-                const completed = steps.filter(s => s.completed).length;
-                const total = steps.length;
-                const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
-                
-                return `
-                <div class="bg-gray-800/80 rounded-lg p-3 border border-gray-700 hover:border-blue-500/50 transition cursor-pointer group" onclick="ui.openDashboard('${p.id}')">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-medium text-gray-100 truncate flex-1 group-hover:text-blue-400 transition">${p.name}</h3>
-                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition">
-                            <button onclick="event.stopPropagation(); ui.openProjectModal('${p.id}')" class="text-gray-400 hover:text-blue-400"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="event.stopPropagation(); deleteProjectPrompt('${p.id}')" class="text-gray-400 hover:text-red-400"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </div>
-                    <div class="w-full bg-gray-700 rounded-full h-1.5 mb-2">
-                        <div class="bg-emerald-400 h-1.5 rounded-full" style="width: ${progress}%"></div>
-                    </div>
-                    <div class="flex justify-between text-xs text-gray-400">
-                        <span>ICE: <b>${p.score}</b></span>
-                        <span>MVP: ${completed}/${total}</span>
-                    </div>
-                </div>
-            `}).join('');
+            DOM.projectList.innerHTML = state.projects.length ? state.projects.map(p => {
+                const total = p.mvpSteps?.length || 0, comp = p.mvpSteps?.filter(s=>s.completed).length || 0, pct = total ? Math.round(comp/total*100) : 0;
+                return `<div class="bg-gray-800/80 rounded-lg p-3 border border-gray-700 hover:border-blue-500 cursor-pointer group" onclick="ui.openDashboard('${p.id}')">
+                    <div class="flex justify-between mb-2"><h3 class="font-medium text-gray-100 truncate">${p.name}</h3><div class="opacity-0 group-hover:opacity-100"><button onclick="event.stopPropagation(); ui.openProjectModal('${p.id}')" class="text-blue-400 mr-2"><i class="fa-solid fa-pen"></i></button><button onclick="event.stopPropagation(); deleteProjectPrompt('${p.id}')" class="text-red-400"><i class="fa-solid fa-trash"></i></button></div></div>
+                    <div class="w-full bg-gray-700 rounded-full h-1.5 mb-2"><div class="bg-emerald-400 h-1.5 rounded-full" style="width: ${pct}%"></div></div>
+                    <div class="flex justify-between text-xs text-gray-400"><span>ICE: <b>${p.score}</b></span><span>MVP: ${comp}/${total}</span></div></div>`;
+            }).join('') : `<div class="text-center text-gray-500 mt-10">尚未建立專案</div>`;
         };
 
         const renderDashboardContent = () => {
-            const project = state.projects.find(p => p.id === state.selectedProjectId);
-            if (!project) return ui.closeDashboard();
-
-            DOM.dashboardTitle.innerText = project.name;
-            
-            const steps = project.mvpSteps || [];
-            const completed = steps.filter(s => s.completed).length;
-            const total = steps.length;
-            const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
-            
-            document.getElementById('mvp-progress-text').innerText = `${progress}% (${completed}/${total})`;
-            document.getElementById('mvp-progress-bar').style.width = `${progress}%`;
-
-            if (total === 0) {
-                DOM.mvpList.innerHTML = `<div class="text-center text-sm text-gray-500 py-4">設定你第一個可以量化的 MVP 小任務！</div>`;
-            } else {
-                DOM.mvpList.innerHTML = steps.map(step => {
-                    let dateHtml = '';
-                    if (step.startDate || step.endDate) {
-                        const startStr = step.startDate ? step.startDate.substring(5).replace('-', '/') : '未定';
-                        const endStr = step.endDate ? step.endDate.substring(5).replace('-', '/') : '未定';
-                        dateHtml = `<div class="text-[11px] text-indigo-300/70 mt-1.5 ml-7 flex items-center gap-1"><i class="fa-regular fa-calendar-check"></i> ${startStr} - ${endStr}</div>`;
-                    }
-                    return `
-                    <li class="p-3 rounded-lg bg-gray-900 border ${step.completed ? 'border-emerald-500/30 bg-gray-900/50' : 'border-gray-700'} group transition">
-                        <div class="flex items-center justify-between">
-                            <label class="flex items-center gap-3 cursor-pointer flex-1">
-                                <input type="checkbox" ${step.completed ? 'checked' : ''} onchange="toggleMvp('${project.id}', '${step.id}')" class="w-4 h-4 rounded text-blue-600 bg-gray-800 border-gray-600 focus:ring-blue-500 focus:ring-2">
-                                <span class="text-sm ${step.completed ? 'text-gray-500 line-through' : 'text-gray-200'}">${step.text}</span>
-                            </label>
-                            <button onclick="deleteMvp('${project.id}', '${step.id}')" class="text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition px-2"><i class="fa-solid fa-xmark"></i></button>
-                        </div>
-                        ${dateHtml}
-                    </li>
-                `}).join('');
-            }
-
-            document.getElementById('view-ta').innerText = project.audience || '尚未設定';
-            document.getElementById('view-comp').innerText = project.competitors || '尚未設定';
-            document.getElementById('view-adv').innerText = project.advantages || '尚未設定';
-            document.getElementById('view-payment').innerText = project.payment || '尚未設定';
-            
-            const platforms = project.platforms || '';
-            const platformLinks = platforms.split(',').map(url => url.trim()).filter(url => url);
-            if(platformLinks.length > 0) {
-                document.getElementById('view-platforms').innerHTML = platformLinks.map(url => {
-                    const validUrl = url.startsWith('http') ? url : `https://${url}`;
-                    return `<a href="${validUrl}" target="_blank" class="flex items-center gap-1 hover:underline"><i class="fa-solid fa-link text-xs"></i> ${url}</a>`;
-                }).join('');
-            } else {
-                document.getElementById('view-platforms').innerText = '尚未設定連結';
-                document.getElementById('view-platforms').className = 'text-gray-400';
-            }
-
-            document.getElementById('view-agent').innerText = project.agent || '尚未設定 Agent Prompt 或 Webhook 邏輯。';
+            const p = state.projects.find(x => x.id === state.selectedProjectId); if (!p) return ui.closeDashboard();
+            DOM.dashboardTitle.innerText = p.name;
+            const total = p.mvpSteps?.length || 0, comp = p.mvpSteps?.filter(s=>s.completed).length || 0, pct = total ? Math.round(comp/total*100) : 0;
+            document.getElementById('mvp-progress-text').innerText = `${pct}%`; document.getElementById('mvp-progress-bar').style.width = `${pct}%`;
+            DOM.mvpList.innerHTML = total ? p.mvpSteps.map(s => `<li class="p-3 rounded-lg bg-gray-900 border ${s.completed?'border-emerald-500/30':'border-gray-700'} group"><div class="flex justify-between"><label class="flex gap-3 cursor-pointer flex-1"><input type="checkbox" ${s.completed?'checked':''} onchange="toggleMvp('${p.id}', '${s.id}')" class="w-4 h-4"><span class="text-sm ${s.completed?'text-gray-500 line-through':'text-gray-200'}">${s.text}</span></label><button onclick="deleteMvp('${p.id}', '${s.id}')" class="text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100"><i class="fa-solid fa-xmark"></i></button></div>${s.startDate ? `<div class="text-[11px] text-indigo-300 mt-1.5 ml-7">${s.startDate} - ${s.endDate||'未定'}</div>` : ''}</li>`).join('') : '';
+            ['audience', 'competitors', 'advantages', 'payment'].forEach(k => document.getElementById(`view-${k}`).innerText = p[k] || '尚未設定');
+            document.getElementById('view-platforms').innerHTML = p.platforms ? p.platforms.split(',').map(url=>`<a href="${url.trim().startsWith('http')?url.trim():'https://'+url.trim()}" target="_blank" class="block hover:underline"><i class="fa-solid fa-link"></i> ${url.trim()}</a>`).join('') : '尚未設定';
+            document.getElementById('view-agent').innerText = p.agent || '尚未設定';
         };
 
         const quadrantPlugin = {
@@ -873,19 +481,14 @@
                 const midX = x.getPixelForValue(5.5); 
                 const midY = y.getPixelForValue(5.5);
                 ctx.save();
-                
                 ctx.fillStyle = 'rgba(16, 185, 129, 0.05)'; ctx.fillRect(midX, top, right - midX, midY - top);
                 ctx.fillStyle = 'rgba(16, 185, 129, 0.3)'; ctx.font = 'bold 16px Inter'; ctx.fillText('Quick Wins (優先執行)', midX + 20, top + 30);
-
                 ctx.fillStyle = 'rgba(59, 130, 246, 0.05)'; ctx.fillRect(left, top, midX - left, midY - top);
                 ctx.fillStyle = 'rgba(59, 130, 246, 0.3)'; ctx.fillText('Major Projects (MVP拆解)', left + 20, top + 30);
-
                 ctx.fillStyle = 'rgba(234, 179, 8, 0.05)'; ctx.fillRect(midX, midY, right - midX, bottom - midY);
                 ctx.fillStyle = 'rgba(234, 179, 8, 0.3)'; ctx.fillText('Fill-ins (零碎時間)', midX + 20, bottom - 20);
-
                 ctx.fillStyle = 'rgba(239, 68, 68, 0.05)'; ctx.fillRect(left, midY, midX - left, bottom - midY);
                 ctx.fillStyle = 'rgba(239, 68, 68, 0.3)'; ctx.fillText('Drop (延後/放棄)', left + 20, bottom - 20);
-
                 ctx.beginPath(); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
                 ctx.moveTo(midX, top); ctx.lineTo(midX, bottom); ctx.moveTo(left, midY); ctx.lineTo(right, midY); ctx.stroke();
                 ctx.restore();
@@ -896,10 +499,8 @@
             const ctx = document.getElementById('iceChart').getContext('2d');
             Chart.defaults.color = '#94a3b8';
             Chart.defaults.font.family = 'Inter';
-
             state.chartInstance = new Chart(ctx, {
-                type: 'bubble', 
-                plugins: [quadrantPlugin],
+                type: 'bubble', plugins: [quadrantPlugin],
                 data: { datasets: [{ label: 'Projects', data: [], backgroundColor: 'rgba(59, 130, 246, 0.8)', borderColor: '#60a5fa', borderWidth: 2, hoverBorderWidth: 4 }] },
                 options: {
                     responsive: true, maintainAspectRatio: false, layout: { padding: 20 },
