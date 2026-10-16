@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICE 專案決策系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow: hidden; /* Prevent full page scroll, manage internally */
+        }
+        
+        /* Custom Scrollbar for inner elements */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .toast-enter { transform: translateY(100%); opacity: 0; }
+        .toast-enter-active { transform: translateY(0); opacity: 1; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .toast-exit { transform: translateY(0); opacity: 1; }
+        .toast-exit-active { transform: translateY(100%); opacity: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Range slider styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #475569;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+
+    <header class="glass-panel px-6 py-4 flex justify-between items-center z-10 border-b border-gray-800">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 p-2 rounded-lg shadow-lg shadow-blue-500/20">
+                <i class="fa-solid fa-cube text-white"></i>
+            </div>
+            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">
+                新創 ICE 決策戰情室
+            </h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <div id="auth-status" class="text-sm text-gray-400 flex items-center gap-2">
+                <i class="fa-solid fa-circle-notch fa-spin"></i> 連線中...
+            </div>
+            <button onclick="ui.openCalendarModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium transition shadow-lg shadow-indigo-600/30 flex items-center gap-2">
+                <i class="fa-regular fa-calendar-days"></i> 任務日曆
+            </button>
+            <button onclick="ui.openProjectModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-medium transition shadow-lg shadow-blue-600/30 flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i> 新增專案
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+        
+        <!-- Left Panel: Project List -->
+        <aside class="w-full md:w-1/3 lg:w-1/4 glass-panel border-r border-gray-800 flex flex-col z-10 h-1/2 md:h-full">
+            <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+                <h2 class="font-semibold text-gray-200">專案清單</h2>
+                <span id="project-count" class="bg-gray-700 text-xs px-2 py-1 rounded-full text-gray-300">0</span>
+            </div>
+            <div id="project-list" class="flex-1 overflow-y-auto p-4 space-y-3">
+                <div class="text-center text-gray-500 mt-10">載入中...</div>
+            </div>
+        </aside>
+
+        <!-- Right Panel: Canvas & Project Dashboard -->
+        <section class="flex-1 flex flex-col h-1/2 md:h-full relative bg-gray-900 shadow-inner">
+            
+            <!-- Canvas Container -->
+            <div class="flex-1 relative p-2 md:p-6 w-full h-full flex items-center justify-center">
+                <canvas id="iceChart"></canvas>
+            </div>
+
+            <div id="dashboard-panel" class="absolute bottom-0 left-0 right-0 glass-panel border-t border-gray-700 transform translate-y-full transition-transform duration-300 flex flex-col h-[60%] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] z-20">
+                <div class="border-b border-gray-700 bg-gray-800/80 px-4 pt-3 flex justify-between items-end">
+                    <div class="flex-1">
+                        <h3 id="dashboard-title" class="text-lg font-bold text-blue-400 mb-2">專案名稱</h3>
+                        <!-- Tabs -->
+                        <div class="flex gap-4 text-sm">
+                            <button onclick="ui.switchTab('mvp')" id="tab-mvp" class="pb-2 border-b-2 border-blue-500 text-blue-400 font-medium transition">MVP 任務與進度</button>
+                            <button onclick="ui.switchTab('market')" id="tab-market" class="pb-2 border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition">市場與商業策略</button>
+                            <button onclick="ui.switchTab('agent')" id="tab-agent" class="pb-2 border-b-2 border-transparent text-gray-400 hover:text-gray-200 transition">Agent 自動化</button>
+                        </div>
+                    </div>
+                    <button onclick="ui.closeDashboard()" class="text-gray-400 hover:text-white p-2 mb-2 rounded-full hover:bg-gray-700 transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <!-- Tab Contents -->
+                <div class="flex-1 overflow-y-auto bg-gray-900/50">
+                    <!-- MVP Tab -->
+                    <div id="content-mvp" class="p-4 block">
+                        <div class="mb-4 bg-gray-800 p-3 rounded-lg border border-gray-700">
+                            <p class="text-xs text-emerald-400 mb-2"><i class="fa-solid fa-lightbulb"></i> <b>子專案/任務定義原則：</b> 具體、可量化、阻力極小，必須有明確的「完成標準 (DoD)」。</p>
+                            <form id="mvp-form" class="flex flex-col gap-2">
+                                <input type="text" id="mvp-input" required placeholder="定義子任務目標 (例如：完成登入頁面 UI 切版)..." class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 text-white">
+                                <div class="flex gap-2 items-center flex-wrap">
+                                    <span class="text-xs text-gray-400"><i class="fa-regular fa-calendar"></i> 排程:</span>
+                                    <input type="date" id="mvp-start" class="bg-gray-900 border border-gray-600 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500 text-gray-300">
+                                    <span class="text-xs text-gray-400">-</span>
+                                    <input type="date" id="mvp-end" class="bg-gray-900 border border-gray-600 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-500 text-gray-300">
+                                    <button type="submit" class="ml-auto bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-lg text-sm transition">新增任務</button>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- Progress Bar -->
+                        <div class="mb-4">
+                            <div class="flex justify-between text-xs text-gray-400 mb-1">
+                                <span>MVP 達成率</span>
+                                <span id="mvp-progress-text">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div id="mvp-progress-bar" class="bg-gradient-to-r from-blue-500 to-emerald-400 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <ul id="mvp-list" class="space-y-2"></ul>
+                    </div>
+
+                    <!-- Market Tab -->
+                    <div id="content-market" class="p-4 hidden space-y-4 text-sm">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                                <h4 class="text-gray-300 font-bold mb-2"><i class="fa-solid fa-users text-blue-400"></i> 目標受眾 (TA)</h4>
+                                <p id="view-ta" class="text-gray-400 whitespace-pre-wrap"></p>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                                <h4 class="text-gray-300 font-bold mb-2"><i class="fa-solid fa-chess-knight text-red-400"></i> 競爭對手分析</h4>
+                                <p id="view-comp" class="text-gray-400 whitespace-pre-wrap"></p>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 md:col-span-2">
+                                <h4 class="text-gray-300 font-bold mb-2"><i class="fa-solid fa-gem text-emerald-400"></i> 勝出關鍵優勢 (Moat)</h4>
+                                <p id="view-adv" class="text-gray-400 whitespace-pre-wrap"></p>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                                <h4 class="text-gray-300 font-bold mb-2"><i class="fa-solid fa-bullhorn text-yellow-400"></i> 目標宣傳平台</h4>
+                                <div id="view-platforms" class="text-blue-400 hover:text-blue-300 break-all"></div>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                                <h4 class="text-gray-300 font-bold mb-2"><i class="fa-solid fa-credit-card text-purple-400"></i> 金流與變現模式</h4>
+                                <p id="view-payment" class="text-gray-400"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Agent Tab -->
+                    <div id="content-agent" class="p-4 hidden space-y-4">
+                        <div class="bg-blue-900/20 border border-blue-500/30 p-4 rounded-lg">
+                            <h4 class="text-blue-400 font-bold mb-2"><i class="fa-solid fa-robot"></i> Agent 自動化整合建議</h4>
+                            <p class="text-sm text-gray-300 mb-2">未來可在此配置 Webhook 或是 Prompt 模板。系統可以抓取您在 MVP 任務中標註為 <code>[Auto]</code> 的子任務，自動拋送給您的 n8n 或 Langflow 代理執行。</p>
+                            <p class="text-xs text-gray-400">目前為樣板預留區，可將您的 AI 提示詞或系統提示 (System Prompt) 記錄於此。</p>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                            <h4 class="text-gray-300 font-bold mb-2 text-sm">Agent 系統提示詞 / 執行腳本</h4>
+                            <p id="view-agent" class="text-gray-400 text-sm whitespace-pre-wrap font-mono bg-gray-900 p-3 rounded"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="project-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity">
+        <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-11/12 max-w-2xl transform scale-95 transition-transform duration-300 relative flex flex-col max-h-[90vh]">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-emerald-500"></div>
+            
+            <div class="p-6 border-b border-gray-700 flex justify-between items-center shrink-0">
+                <h2 id="modal-title" class="text-xl font-bold text-white">新增專案與市場設定</h2>
+                <button type="button" onclick="ui.closeProjectModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-1">
+                <form id="project-form" class="space-y-8">
+                    <input type="hidden" id="project-id">
+                    
+                    <!-- Core Section -->
+                    <section class="space-y-4">
+                        <h3 class="text-emerald-400 font-semibold border-b border-gray-700 pb-1"><i class="fa-solid fa-rocket"></i> 1. 核心定義 (大專案原則)</h3>
+                        <p class="text-xs text-gray-400">💡 <b>原則提示：</b> 解決什麼核心痛點？是否具備市場剛需？能否在 1~3 個月內發布 MVP 驗證？</p>
+                        
+                        <div>
+                            <label class="block text-sm text-gray-300 mb-1">專案名稱</label>
+                            <input type="text" id="p-name" required placeholder="例如：自動化 IG 貼文產生器" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-900/50 p-4 rounded-lg border border-gray-700">
+                            <div>
+                                <div class="flex justify-between text-xs mb-1"><span class="text-emerald-400">影響力 (Impact)</span><span id="val-impact" class="font-bold text-white">5</span></div>
+                                <input type="range" id="p-impact" min="1" max="10" value="5" oninput="document.getElementById('val-impact').innerText = this.value">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1"><span class="text-blue-400">信心度 (Confidence)</span><span id="val-confidence" class="font-bold text-white">5</span></div>
+                                <input type="range" id="p-confidence" min="1" max="10" value="5" oninput="document.getElementById('val-confidence').innerText = this.value">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1"><span class="text-yellow-400">容易度 (Ease)</span><span id="val-ease" class="font-bold text-white">5</span></div>
+                                <input type="range" id="p-ease" min="1" max="10" value="5" oninput="document.getElementById('val-ease').innerText = this.value">
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Market Section -->
+                    <section class="space-y-4">
+                        <h3 class="text-blue-400 font-semibold border-b border-gray-700 pb-1"><i class="fa-solid fa-chart-pie"></i> 2. 市場與行銷設定 (自然流量準備)</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-gray-300 mb-1">目標受眾樣態 (Target Audience)</label>
+                                <textarea id="p-audience" rows="2" placeholder="誰最需要這個？例如：沒有時間經營粉專的一人公司創辦人" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-300 mb-1">競爭對手分析 (Competitors)</label>
+                                <textarea id="p-competitors" rows="2" placeholder="市面上的替代方案？他們的弱點？" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm text-gray-300 mb-1">勝出關鍵優勢資源 (Key Advantages)</label>
+                            <input type="text" id="p-advantages" placeholder="例如：我有獨家的爬蟲技術、或是特定社群的管理權限" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-gray-300 mb-1">目標宣傳平台 (貼連結)</label>
+                                <input type="text" id="p-platforms" placeholder="https://vocus.cc/..., https://twitter.com/..." class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                                <p class="text-[10px] text-gray-500 mt-1">初期自然流量來源，輸入網址以便後續直接點擊宣傳。</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-300 mb-1">金流平台樣板 (變現渠道)</label>
+                                <select id="p-payment" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                                    <option value="無 / 免費開源">無 / 免費開源</option>
+                                    <option value="Stripe (國際信用卡)">Stripe (國際信用卡)</option>
+                                    <option value="綠界科技 ECPay (台灣)">綠界科技 ECPay (台灣)</option>
+                                    <option value="藍新金流 NewebPay (台灣)">藍新金流 NewebPay (台灣)</option>
+                                    <option value="Gumroad / Lemon Squeezy (數位商品)">Gumroad / Lemon Squeezy (數位商品)</option>
+                                    <option value="Buy Me a Coffee / Patreon (贊助)">Buy Me a Coffee / Patreon (贊助)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Agent Section -->
+                    <section class="space-y-4">
+                        <h3 class="text-purple-400 font-semibold border-b border-gray-700 pb-1"><i class="fa-solid fa-robot"></i> 3. Agent 自動化設定 (預留)</h3>
+                        <div>
+                            <label class="block text-sm text-gray-300 mb-1">自動化 Agent Prompt / Webhook 概念</label>
+                            <textarea id="p-agent" rows="2" placeholder="設定給 AI 的系統提示詞，或是預定要拋接的 n8n webhook 邏輯..." class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 font-mono"></textarea>
+                        </div>
+                    </section>
+                </form>
+            </div>
+            
+            <div class="p-6 border-t border-gray-700 flex gap-3 shrink-0 bg-gray-800 rounded-b-xl">
+                <button type="button" onclick="ui.closeProjectModal()" class="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition text-sm text-white">取消</button>
+                <button type="submit" form="project-form" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition text-sm font-semibold shadow-lg shadow-blue-500/20">儲存專案設定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar Modal -->
+    <div id="calendar-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity">
+        <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-11/12 max-w-4xl h-[80vh] transform scale-95 transition-transform duration-300 relative flex flex-col overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+            
+            <div class="p-4 border-b border-gray-700 flex justify-between items-center shrink-0">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2"><i class="fa-regular fa-calendar-days text-indigo-400"></i> 任務日曆總覽</h2>
+                <button type="button" onclick="ui.closeCalendarModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <div class="flex-1 flex flex-col md:flex-row overflow-hidden bg-gray-900/50">
+                <!-- Calendar Grid Area -->
+                <div class="w-full md:w-3/5 p-4 md:p-6 border-b md:border-b-0 md:border-r border-gray-700 flex flex-col">
+                    <div class="flex justify-between items-center mb-6">
+                        <button onclick="changeMonth(-1)" class="text-gray-400 hover:text-white px-3 py-1 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-500 transition"><i class="fa-solid fa-chevron-left"></i></button>
+                        <h3 id="calendar-month-year" class="font-bold text-lg text-gray-200">2026 年 10 月</h3>
+                        <button onclick="changeMonth(1)" class="text-gray-400 hover:text-white px-3 py-1 bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-500 transition"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-500 mb-2">
+                        <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-2 flex-1 auto-rows-fr">
+                        <!-- JS Generated Days -->
+                    </div>
+                </div>
+                
+                <!-- Day Tasks List Area -->
+                <div class="w-full md:w-2/5 p-4 md:p-6 flex flex-col overflow-y-auto relative">
+                    <h4 id="selected-date-title" class="font-bold text-indigo-400 mb-4 pb-2 border-b border-gray-700 text-lg sticky top-0 bg-gray-900/90 backdrop-blur z-10 pt-1">選擇日期</h4>
+                    <div id="day-tasks-list" class="space-y-4">
+                        <div class="text-gray-500 text-sm text-center mt-10">點擊左側日期查看任務</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Dialog -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity">
+        <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 max-w-sm w-11/12 transform scale-95 transition-transform duration-300 text-center">
+            <div class="w-12 h-12 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center text-xl mx-auto mb-4">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-lg font-bold mb-2 text-white">確定刪除專案？</h3>
+            <p class="text-sm text-gray-400 mb-6">這將會刪除該專案及其所有的 MVP 步驟與商業設定。</p>
+            <div class="flex gap-3">
+                <button onclick="ui.closeConfirmModal()" class="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition text-sm text-white">取消</button>
+                <button id="confirm-btn" class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition text-sm font-semibold">確認刪除</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const state = {
+            projects: [],
+            selectedProjectId: null,
+            userId: null,
+            appId: typeof __app_id !== 'undefined' ? __app_id : 'default-ice-app',
+            chartInstance: null,
+            activeTab: 'mvp',
+            calendarDate: new Date(),
+            selectedDateStr: null
+        };
+
+        const DOM = {
+            projectList: document.getElementById('project-list'),
+            projectCount: document.getElementById('project-count'),
+            authStatus: document.getElementById('auth-status'),
+            projectModal: document.getElementById('project-modal'),
+            modalTitle: document.getElementById('modal-title'),
+            projectForm: document.getElementById('project-form'),
+            confirmModal: document.getElementById('confirm-modal'),
+            dashboardPanel: document.getElementById('dashboard-panel'),
+            dashboardTitle: document.getElementById('dashboard-title'),
+            mvpList: document.getElementById('mvp-list'),
+            mvpForm: document.getElementById('mvp-form')
+        };
+
+        window.ui = {
+            showToast: (msg, type = 'success') => {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                const colors = type === 'success' ? 'bg-emerald-600' : (type === 'error' ? 'bg-red-600' : 'bg-blue-600');
+                const icon = type === 'success' ? 'fa-check' : (type === 'error' ? 'fa-xmark' : 'fa-info');
+                
+                toast.className = `flex items-center gap-3 ${colors} text-white px-4 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-y-full opacity-0`;
+                toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span class="text-sm font-medium">${msg}</span>`;
+                
+                container.appendChild(toast);
+                requestAnimationFrame(() => { toast.classList.remove('translate-y-full', 'opacity-0'); });
+
+                setTimeout(() => {
+                    toast.classList.add('translate-y-full', 'opacity-0');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            },
+            openProjectModal: (projectId = null) => {
+                const modal = DOM.projectModal;
+                const inner = modal.querySelector('div');
+                
+                if (projectId) {
+                    const p = state.projects.find(x => x.id === projectId);
+                    if(!p) return;
+                    document.getElementById('project-id').value = p.id;
+                    document.getElementById('p-name').value = p.name;
+                    document.getElementById('p-impact').value = p.impact;
+                    document.getElementById('val-impact').innerText = p.impact;
+                    document.getElementById('p-confidence').value = p.confidence;
+                    document.getElementById('val-confidence').innerText = p.confidence;
+                    document.getElementById('p-ease').value = p.ease;
+                    document.getElementById('val-ease').innerText = p.ease;
+                    
+                    document.getElementById('p-audience').value = p.audience || '';
+                    document.getElementById('p-competitors').value = p.competitors || '';
+                    document.getElementById('p-advantages').value = p.advantages || '';
+                    document.getElementById('p-platforms').value = p.platforms || '';
+                    document.getElementById('p-payment').value = p.payment || '無 / 免費開源';
+                    document.getElementById('p-agent').value = p.agent || '';
+                    
+                    DOM.modalTitle.innerText = "編輯專案與市場設定";
+                } else {
+                    DOM.projectForm.reset();
+                    document.getElementById('project-id').value = '';
+                    ['impact', 'confidence', 'ease'].forEach(k => {
+                        document.getElementById(`val-${k}`).innerText = '5';
+                    });
+                    document.getElementById('p-payment').value = '無 / 免費開源';
+                    DOM.modalTitle.innerText = "新增專案與市場設定";
+                }
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                requestAnimationFrame(() => {
+                    modal.classList.remove('opacity-0');
+                    inner.classList.remove('scale-95');
+                });
+            },
+            closeProjectModal: () => {
+                const modal = DOM.projectModal;
+                const inner = modal.querySelector('div');
+                modal.classList.add('opacity-0');
+                inner.classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
+            },
+            openConfirmModal: (actionCallback) => {
+                const modal = DOM.confirmModal;
+                const btn = document.getElementById('confirm-btn');
+                btn.onclick = () => { actionCallback(); ui.closeConfirmModal(); };
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                requestAnimationFrame(() => { modal.classList.remove('opacity-0'); modal.querySelector('div').classList.remove('scale-95'); });
+            },
+            closeConfirmModal: () => {
+                const modal = DOM.confirmModal;
+                modal.classList.add('opacity-0');
+                modal.querySelector('div').classList.add('scale-95');
+                setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+            },
+            openCalendarModal: () => {
+                const modal = document.getElementById('calendar-modal');
+                state.calendarDate = new Date();
+                const todayStr = state.calendarDate.toISOString().split('T')[0];
+                window.selectDate(todayStr); // 預設選取今天
+                window.renderCalendar();
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                requestAnimationFrame(() => {
+                    modal.classList.remove('opacity-0');
+                    modal.querySelector('div').classList.remove('scale-95');
+                });
+            },
+            closeCalendarModal: () => {
+                const modal = document.getElementById('calendar-modal');
+                modal.classList.add('opacity-0');
+                modal.querySelector('div').classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
+            },
+            openDashboard: (projectId) => {
+                state.selectedProjectId = projectId;
+                renderDashboardContent();
+                DOM.dashboardPanel.classList.remove('translate-y-full');
+            },
+            closeDashboard: () => {
+                DOM.dashboardPanel.classList.add('translate-y-full');
+                state.selectedProjectId = null;
+            },
+            switchTab: (tabName) => {
+                state.activeTab = tabName;
+                ['mvp', 'market', 'agent'].forEach(t => {
+                    document.getElementById(`tab-${t}`).classList.remove('border-blue-500', 'text-blue-400');
+                    document.getElementById(`tab-${t}`).classList.add('border-transparent', 'text-gray-400');
+                    document.getElementById(`content-${t}`).classList.add('hidden');
+                    document.getElementById(`content-${t}`).classList.remove('block');
+                });
+                
+                document.getElementById(`tab-${tabName}`).classList.remove('border-transparent', 'text-gray-400');
+                document.getElementById(`tab-${tabName}`).classList.add('border-blue-500', 'text-blue-400');
+                document.getElementById(`content-${tabName}`).classList.remove('hidden');
+                document.getElementById(`content-${tabName}`).classList.add('block');
+            }
+        };
+
+        let db, auth;
+        const initFirebase = async () => {
+            // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDCYNYBRjcbYBCJ5NjpcUrk5JfuInJ1gKg",
+  authDomain: "ice-project-manage-system.firebaseapp.com",
+  projectId: "ice-project-manage-system",
+  storageBucket: "ice-project-manage-system.firebasestorage.app",
+  messagingSenderId: "526672568868",
+  appId: "1:526672568868:web:8ce69400bbeee3f1e4eeb1",
+  measurementId: "G-X57P8PLTNV"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+        };
+
+        const listenToProjects = () => {
+            if (!state.userId) return;
+            const ref = collection(db, 'artifacts', state.appId, 'users', state.userId, 'projects');
+            onSnapshot(ref, (snapshot) => {
+                const arr = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    data.score = data.impact * data.confidence * data.ease;
+                    arr.push(data);
+                });
+                arr.sort((a, b) => b.score - a.score);
+                state.projects = arr;
+                renderProjects();
+                updateChart();
+                if (state.selectedProjectId) renderDashboardContent();
+            }, (error) => { console.error(error); ui.showToast("同步資料失敗", "error"); });
+        };
+
+        const saveProject = async (e) => {
+            e.preventDefault();
+            if (!state.userId) return ui.showToast("未登入，無法儲存", "error");
+
+            const id = document.getElementById('project-id').value || crypto.randomUUID();
+            const projectData = {
+                id,
+                name: document.getElementById('p-name').value.trim(),
+                impact: parseInt(document.getElementById('p-impact').value),
+                confidence: parseInt(document.getElementById('p-confidence').value),
+                ease: parseInt(document.getElementById('p-ease').value),
+                audience: document.getElementById('p-audience').value.trim(),
+                competitors: document.getElementById('p-competitors').value.trim(),
+                advantages: document.getElementById('p-advantages').value.trim(),
+                platforms: document.getElementById('p-platforms').value.trim(),
+                payment: document.getElementById('p-payment').value,
+                agent: document.getElementById('p-agent').value.trim(),
+                mvpSteps: [], 
+                updatedAt: new Date().toISOString()
+            };
+
+            const existing = state.projects.find(p => p.id === id);
+            if (existing) {
+                projectData.mvpSteps = existing.mvpSteps || [];
+                projectData.createdAt = existing.createdAt;
+            } else {
+                projectData.createdAt = projectData.updatedAt;
+            }
+
+            try {
+                const docRef = doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', id);
+                await setDoc(docRef, projectData);
+                ui.closeProjectModal();
+                ui.showToast(existing ? "專案已更新" : "專案已建立");
+            } catch (err) { console.error(err); ui.showToast("儲存失敗", "error"); }
+        };
+
+        const deleteProject = async (id) => {
+            if (!state.userId) return;
+            try {
+                const docRef = doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', id);
+                await deleteDoc(docRef);
+                ui.showToast("專案已刪除");
+                if (state.selectedProjectId === id) ui.closeDashboard();
+            } catch (err) { console.error(err); ui.showToast("刪除失敗", "error"); }
+        };
+
+        const addMvpStep = async (e) => {
+            e.preventDefault();
+            if (!state.userId || !state.selectedProjectId) return;
+            const input = document.getElementById('mvp-input');
+            const startInput = document.getElementById('mvp-start');
+            const endInput = document.getElementById('mvp-end');
+            
+            const text = input.value.trim();
+            if (!text) return;
+
+            const project = state.projects.find(p => p.id === state.selectedProjectId);
+            if (!project) return;
+
+            const newStep = { 
+                id: crypto.randomUUID(), 
+                text: text, 
+                completed: false,
+                startDate: startInput.value || null,
+                endDate: endInput.value || null
+            };
+            const updatedSteps = [...(project.mvpSteps || []), newStep];
+            
+            try {
+                const docRef = doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', project.id);
+                await updateDoc(docRef, { mvpSteps: updatedSteps });
+                input.value = '';
+                startInput.value = '';
+                endInput.value = '';
+            } catch (err) { console.error(err); ui.showToast("新增任務失敗", "error"); }
+        };
+
+        const toggleMvpStep = async (projectId, stepId) => {
+            if (!state.userId) return;
+            const project = state.projects.find(p => p.id === projectId);
+            const updatedSteps = project.mvpSteps.map(step => step.id === stepId ? { ...step, completed: !step.completed } : step);
+            try {
+                const docRef = doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', projectId);
+                await updateDoc(docRef, { mvpSteps: updatedSteps });
+            } catch (err) { console.error(err); ui.showToast("狀態更新失敗", "error"); }
+        };
+
+        const deleteMvpStep = async (projectId, stepId) => {
+             if (!state.userId) return;
+            const project = state.projects.find(p => p.id === projectId);
+            const updatedSteps = project.mvpSteps.filter(step => step.id !== stepId);
+            try {
+                const docRef = doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', projectId);
+                await updateDoc(docRef, { mvpSteps: updatedSteps });
+            } catch (err) { console.error(err); ui.showToast("刪除步驟失敗", "error"); }
+        };
+
+        window.deleteProjectPrompt = (id) => ui.openConfirmModal(() => deleteProject(id));
+        window.toggleMvp = toggleMvpStep;
+        window.deleteMvp = deleteMvpStep;
+
+        window.changeMonth = (dir) => {
+            state.calendarDate.setMonth(state.calendarDate.getMonth() + dir);
+            window.renderCalendar();
+        };
+
+        window.selectDate = (dateStr) => {
+            state.selectedDateStr = dateStr;
+            window.renderCalendar(); // 重繪以反白選中日期
+            renderDayTasks(dateStr);
+        };
+
+        // 判斷日期是否在任務區間內 (含當天)
+        const isDateInRange = (dateStr, startStr, endStr) => {
+            if (!startStr && !endStr) return false;
+            const target = new Date(dateStr).getTime();
+            const start = startStr ? new Date(startStr).getTime() : 0;
+            const end = endStr ? new Date(endStr).getTime() : Infinity;
+            return target >= start && target <= end;
+        };
+
+        // 渲染指定日期的所有任務
+        const renderDayTasks = (dateStr) => {
+            const titleEl = document.getElementById('selected-date-title');
+            const listEl = document.getElementById('day-tasks-list');
+            titleEl.innerHTML = `<i class="fa-solid fa-list-check"></i> ${dateStr} 任務清單`;
+            
+            let html = '';
+            let tasksFound = 0;
+
+            // 走訪所有專案的子任務
+            state.projects.forEach(p => {
+                if (!p.mvpSteps) return;
+                const dailyTasks = p.mvpSteps.filter(step => {
+                    // 如果只設了開始或結束，或者在區間內，都算當天任務
+                    if (step.startDate === dateStr || step.endDate === dateStr) return true;
+                    return isDateInRange(dateStr, step.startDate, step.endDate);
+                });
+
+                if (dailyTasks.length > 0) {
+                    html += `<div class="mb-4 bg-gray-800/50 p-3 rounded-lg border border-gray-700">
+                        <div class="text-xs font-bold text-blue-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-cube"></i> ${p.name}</div>
+                        <div class="space-y-2">`;
+                    
+                    dailyTasks.forEach(t => {
+                        html += `
+                            <div class="bg-gray-900 p-2.5 rounded border ${t.completed ? 'border-emerald-500/30 bg-emerald-900/10' : 'border-gray-600'} flex items-start gap-3 transition">
+                                <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleMvp('${p.id}', '${t.id}'); setTimeout(()=>renderDayTasks('${dateStr}'), 300)" class="mt-0.5 w-4 h-4 rounded text-indigo-600 bg-gray-800 border-gray-500 cursor-pointer">
+                                <span class="text-sm ${t.completed ? 'text-gray-500 line-through' : 'text-gray-200'} flex-1 leading-tight">${t.text}</span>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `</div></div>`;
+                    tasksFound += dailyTasks.length;
+                }
+            });
+
+            if (tasksFound === 0) {
+                listEl.innerHTML = `<div class="text-gray-500 text-sm text-center mt-12 flex flex-col items-center"><div class="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center mb-4"><i class="fa-regular fa-face-smile text-2xl text-gray-400"></i></div><p>這一天很清閒，<br>沒有安排任何任務！</p></div>`;
+            } else {
+                listEl.innerHTML = html;
+            }
+        };
+
+        // 渲染月曆網格
+        window.renderCalendar = () => {
+            const year = state.calendarDate.getFullYear();
+            const month = state.calendarDate.getMonth();
+            document.getElementById('calendar-month-year').innerText = `${year} 年 ${month + 1} 月`;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            const grid = document.getElementById('calendar-grid');
+            let html = '';
+
+            // 補齊月初的空白格子
+            for (let i = 0; i < firstDay; i++) {
+                html += `<div class="bg-transparent"></div>`;
+            }
+
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                
+                // 檢查這一天是否有任務存在
+                let hasTasks = false;
+                state.projects.forEach(p => {
+                    if (p.mvpSteps && p.mvpSteps.some(step => isDateInRange(dateStr, step.startDate, step.endDate))) {
+                        hasTasks = true;
+                    }
+                });
+
+                const isToday = dateStr === todayStr;
+                const isSelected = dateStr === state.selectedDateStr;
+                
+                let classes = "flex flex-col items-center justify-center p-2 rounded-xl cursor-pointer transition relative group border ";
+                
+                if (isSelected) {
+                    classes += "bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/30 ";
+                } else if (isToday) {
+                    classes += "bg-gray-800 border-blue-500 text-blue-400 hover:bg-gray-700 ";
+                } else {
+                    classes += "bg-gray-800 border-gray-700 hover:border-gray-500 text-gray-300 hover:bg-gray-700 ";
+                }
+
+                html += `
+                    <div class="${classes}" onclick="selectDate('${dateStr}')">
+                        <span class="text-sm font-bold z-10">${i}</span>
+                        ${hasTasks ? '<div class="absolute bottom-1.5 w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_5px_#34d399]"></div>' : ''}
+                    </div>
+                `;
+            }
+            grid.innerHTML = html;
+        };
+
+        const renderProjects = () => {
+            DOM.projectCount.innerText = state.projects.length;
+            if (state.projects.length === 0) {
+                DOM.projectList.innerHTML = `<div class="text-center text-gray-500 mt-10"><i class="fa-regular fa-folder-open text-3xl mb-2 opacity-50"></i><p class="text-sm">尚未建立專案<br>點擊右上角新增</p></div>`;
+                return;
+            }
+
+            DOM.projectList.innerHTML = state.projects.map(p => {
+                const steps = p.mvpSteps || [];
+                const completed = steps.filter(s => s.completed).length;
+                const total = steps.length;
+                const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
+                
+                return `
+                <div class="bg-gray-800/80 rounded-lg p-3 border border-gray-700 hover:border-blue-500/50 transition cursor-pointer group" onclick="ui.openDashboard('${p.id}')">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-medium text-gray-100 truncate flex-1 group-hover:text-blue-400 transition">${p.name}</h3>
+                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition">
+                            <button onclick="event.stopPropagation(); ui.openProjectModal('${p.id}')" class="text-gray-400 hover:text-blue-400"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="event.stopPropagation(); deleteProjectPrompt('${p.id}')" class="text-gray-400 hover:text-red-400"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-1.5 mb-2">
+                        <div class="bg-emerald-400 h-1.5 rounded-full" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-400">
+                        <span>ICE: <b>${p.score}</b></span>
+                        <span>MVP: ${completed}/${total}</span>
+                    </div>
+                </div>
+            `}).join('');
+        };
+
+        const renderDashboardContent = () => {
+            const project = state.projects.find(p => p.id === state.selectedProjectId);
+            if (!project) return ui.closeDashboard();
+
+            DOM.dashboardTitle.innerText = project.name;
+            
+            // 1. Render MVP Tab & Progress
+            const steps = project.mvpSteps || [];
+            const completed = steps.filter(s => s.completed).length;
+            const total = steps.length;
+            const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
+            
+            document.getElementById('mvp-progress-text').innerText = `${progress}% (${completed}/${total})`;
+            document.getElementById('mvp-progress-bar').style.width = `${progress}%`;
+
+            if (total === 0) {
+                DOM.mvpList.innerHTML = `<div class="text-center text-sm text-gray-500 py-4">設定你第一個可以量化的 MVP 小任務！</div>`;
+            } else {
+                DOM.mvpList.innerHTML = steps.map(step => {
+                    let dateHtml = '';
+                    if (step.startDate || step.endDate) {
+                        const startStr = step.startDate ? step.startDate.substring(5).replace('-', '/') : '未定';
+                        const endStr = step.endDate ? step.endDate.substring(5).replace('-', '/') : '未定';
+                        dateHtml = `<div class="text-[11px] text-indigo-300/70 mt-1.5 ml-7 flex items-center gap-1"><i class="fa-regular fa-calendar-check"></i> ${startStr} - ${endStr}</div>`;
+                    }
+                    return `
+                    <li class="p-3 rounded-lg bg-gray-900 border ${step.completed ? 'border-emerald-500/30 bg-gray-900/50' : 'border-gray-700'} group transition">
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center gap-3 cursor-pointer flex-1">
+                                <input type="checkbox" ${step.completed ? 'checked' : ''} onchange="toggleMvp('${project.id}', '${step.id}')" class="w-4 h-4 rounded text-blue-600 bg-gray-800 border-gray-600 focus:ring-blue-500 focus:ring-2">
+                                <span class="text-sm ${step.completed ? 'text-gray-500 line-through' : 'text-gray-200'}">${step.text}</span>
+                            </label>
+                            <button onclick="deleteMvp('${project.id}', '${step.id}')" class="text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition px-2"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        ${dateHtml}
+                    </li>
+                `}).join('');
+            }
+
+            // 2. Render Market Tab
+            document.getElementById('view-ta').innerText = project.audience || '尚未設定';
+            document.getElementById('view-comp').innerText = project.competitors || '尚未設定';
+            document.getElementById('view-adv').innerText = project.advantages || '尚未設定';
+            document.getElementById('view-payment').innerText = project.payment || '尚未設定';
+            
+            // Format Platform Links
+            const platforms = project.platforms || '';
+            const platformLinks = platforms.split(',').map(url => url.trim()).filter(url => url);
+            if(platformLinks.length > 0) {
+                document.getElementById('view-platforms').innerHTML = platformLinks.map(url => {
+                    const validUrl = url.startsWith('http') ? url : `https://${url}`;
+                    return `<a href="${validUrl}" target="_blank" class="flex items-center gap-1 hover:underline"><i class="fa-solid fa-link text-xs"></i> ${url}</a>`;
+                }).join('');
+            } else {
+                document.getElementById('view-platforms').innerText = '尚未設定連結';
+                document.getElementById('view-platforms').className = 'text-gray-400';
+            }
+
+            // 3. Render Agent Tab
+            document.getElementById('view-agent').innerText = project.agent || '尚未設定 Agent Prompt 或 Webhook 邏輯。';
+        };
+
+        const quadrantPlugin = {
+            id: 'quadrant',
+            beforeDraw(chart) {
+                const { ctx, chartArea: { left, top, right, bottom }, scales: { x, y } } = chart;
+                const midX = x.getPixelForValue(5.5); 
+                const midY = y.getPixelForValue(5.5);
+                ctx.save();
+                
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.05)'; ctx.fillRect(midX, top, right - midX, midY - top);
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.3)'; ctx.font = 'bold 16px Inter'; ctx.fillText('Quick Wins (優先執行)', midX + 20, top + 30);
+
+                ctx.fillStyle = 'rgba(59, 130, 246, 0.05)'; ctx.fillRect(left, top, midX - left, midY - top);
+                ctx.fillStyle = 'rgba(59, 130, 246, 0.3)'; ctx.fillText('Major Projects (MVP拆解)', left + 20, top + 30);
+
+                ctx.fillStyle = 'rgba(234, 179, 8, 0.05)'; ctx.fillRect(midX, midY, right - midX, bottom - midY);
+                ctx.fillStyle = 'rgba(234, 179, 8, 0.3)'; ctx.fillText('Fill-ins (零碎時間)', midX + 20, bottom - 20);
+
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.05)'; ctx.fillRect(left, midY, midX - left, bottom - midY);
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.3)'; ctx.fillText('Drop (延後/放棄)', left + 20, bottom - 20);
+
+                ctx.beginPath(); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.moveTo(midX, top); ctx.lineTo(midX, bottom); ctx.moveTo(left, midY); ctx.lineTo(right, midY); ctx.stroke();
+                ctx.restore();
+            }
+        };
+
+        const initChart = () => {
+            const ctx = document.getElementById('iceChart').getContext('2d');
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.font.family = 'Inter';
+
+            state.chartInstance = new Chart(ctx, {
+                type: 'bubble', 
+                plugins: [quadrantPlugin],
+                data: { datasets: [{ label: 'Projects', data: [], backgroundColor: 'rgba(59, 130, 246, 0.8)', borderColor: '#60a5fa', borderWidth: 2, hoverBorderWidth: 4 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false, layout: { padding: 20 },
+                    scales: {
+                        x: { min: 0.5, max: 10.5, title: { display: true, text: '啟動容易度 (Ease) →', color: '#e2e8f0', font: {size: 14, weight: 'bold'} }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { min: 0.5, max: 10.5, title: { display: true, text: '影響力 (Impact) →', color: '#e2e8f0', font: {size: 14, weight: 'bold'} }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)', titleFont: { size: 16 }, bodyFont: { size: 14 }, padding: 12, borderColor: 'rgba(59, 130, 246, 0.5)', borderWidth: 1,
+                            callbacks: { label: (context) => { const d = context.raw.rawProject; return [d.name, `ICE 分數: ${d.score}`, `影響: ${d.impact} | 容易: ${d.ease} | 信心: ${d.confidence}`]; } }
+                        }
+                    },
+                    onClick: (e, activeElements) => {
+                        if (activeElements.length > 0) {
+                            const dataIndex = activeElements[0].index;
+                            ui.openDashboard(state.chartInstance.data.datasets[0].data[dataIndex].rawProject.id);
+                        } else { ui.closeDashboard(); }
+                    }
+                }
+            });
+        };
+
+        const updateChart = () => {
+            if (!state.chartInstance) return;
+            const chartData = state.projects.map(p => {
+                const isQuickWin = p.ease >= 5.5 && p.impact >= 5.5;
+                return {
+                    x: p.ease, y: p.impact, r: 8 + (p.confidence * 1.5), rawProject: p,
+                    backgroundColor: isQuickWin ? 'rgba(16, 185, 129, 0.8)' : 'rgba(59, 130, 246, 0.8)',
+                    borderColor: isQuickWin ? '#34d399' : '#60a5fa',
+                }
+            });
+            state.chartInstance.data.datasets[0].data = chartData;
+            state.chartInstance.data.datasets[0].backgroundColor = chartData.map(d => d.backgroundColor);
+            state.chartInstance.data.datasets[0].borderColor = chartData.map(d => d.borderColor);
+            state.chartInstance.update();
+        };
+
+        DOM.projectForm.addEventListener('submit', saveProject);
+        DOM.mvpForm.addEventListener('submit', addMvpStep);
+        window.addEventListener('resize', () => { if (state.chartInstance) state.chartInstance.resize(); });
+        
+        window.onload = () => { initChart(); initFirebase(); };
+    </script>
+</body>
+</html>
