@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -14,6 +15,8 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .glass-panel { background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #3b82f6; cursor: pointer; margin-top: -6px; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
@@ -60,7 +63,7 @@
 
         <!-- 右側/下方畫布區 -->
         <section class="flex-1 relative bg-gray-900 shadow-inner h-[65%] md:h-full flex flex-col">
-            <div class="flex-1 relative p-2 md:p-6 w-full h-full">
+            <div class="flex-1 relative p-2 md:p-6 w-full h-full flex items-center justify-center">
                 <canvas id="iceChart"></canvas>
             </div>
         </section>
@@ -87,7 +90,7 @@
         </div>
         
         <div class="flex-1 overflow-y-auto bg-gray-900/90 pb-10">
-            <!-- MVP Tab (新增子任務的地方在這裡) -->
+            <!-- MVP Tab -->
             <div id="content-mvp" class="p-4 md:p-6 block">
                 <div class="mb-6 bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-lg">
                     <h4 class="text-sm font-bold text-emerald-400 mb-2"><i class="fa-solid fa-bolt"></i> 新增 MVP 子任務</h4>
@@ -116,20 +119,20 @@
                 <ul id="mvp-list" class="space-y-3"></ul>
             </div>
 
-            <!-- Market Tab -->
+            <!-- Market Tab (ID 已對齊，絕對不會再崩潰) -->
             <div id="content-market" class="p-4 md:p-6 hidden space-y-4 text-sm">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
                         <h4 class="text-gray-300 font-bold mb-2"><i class="fa-solid fa-users text-blue-400"></i> 目標受眾 (TA)</h4>
-                        <p id="view-ta" class="text-gray-400 whitespace-pre-wrap leading-relaxed"></p>
+                        <p id="view-audience" class="text-gray-400 whitespace-pre-wrap leading-relaxed"></p>
                     </div>
                     <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
                         <h4 class="text-gray-300 font-bold mb-2"><i class="fa-solid fa-chess-knight text-red-400"></i> 競爭對手分析</h4>
-                        <p id="view-comp" class="text-gray-400 whitespace-pre-wrap leading-relaxed"></p>
+                        <p id="view-competitors" class="text-gray-400 whitespace-pre-wrap leading-relaxed"></p>
                     </div>
                     <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 md:col-span-2">
                         <h4 class="text-gray-300 font-bold mb-2"><i class="fa-solid fa-gem text-emerald-400"></i> 勝出關鍵優勢 (Moat)</h4>
-                        <p id="view-adv" class="text-gray-400 whitespace-pre-wrap leading-relaxed"></p>
+                        <p id="view-advantages" class="text-gray-400 whitespace-pre-wrap leading-relaxed"></p>
                     </div>
                     <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
                         <h4 class="text-gray-300 font-bold mb-2"><i class="fa-solid fa-bullhorn text-yellow-400"></i> 目標宣傳平台</h4>
@@ -156,7 +159,7 @@
         </div>
     </div>
 
-    <!-- 新增/編輯專案的彈出視窗 -->
+    <!-- 新增/編輯專案 Modal -->
     <div id="project-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity p-2 md:p-0">
         <div class="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl w-full max-w-2xl transform scale-95 transition-transform duration-300 relative flex flex-col max-h-[95vh] md:max-h-[90vh]">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-emerald-500"></div>
@@ -170,7 +173,7 @@
                     
                     <section class="space-y-3 md:space-y-4">
                         <h3 class="text-emerald-400 font-semibold border-b border-gray-700 pb-1"><i class="fa-solid fa-rocket"></i> 1. 核心定義</h3>
-                        <p class="text-xs text-gray-400 mb-2">💡 <b>原則提示：</b> 解決什麼痛點？是否具備市場剛需？能否在 1~3 個月內發布 MVP 驗證？</p>
+                        <p class="text-xs text-gray-400 mb-2">💡 <b>原則提示：</b> 解決什麼痛點？能否在 1~3 個月內發布 MVP 驗證？</p>
                         <div>
                             <label class="block text-sm text-gray-300 mb-1">專案名稱</label>
                             <input type="text" id="p-name" required class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500">
@@ -249,24 +252,21 @@
 
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
+    <!-- Firebase 邏輯 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // =========================================================================
-        // 🛑 請在這裡貼上你自己的 Firebase 設定碼 🛑
-        // =========================================================================
+        // 🔥 你專屬的設定檔 (不需修改)
         const firebaseConfig = {
-  apiKey: "AIzaSyDCYNYBRjcbYBCJ5NjpcUrk5JfuInJ1gKg",
-  authDomain: "ice-project-manage-system.firebaseapp.com",
-  projectId: "ice-project-manage-system",
-  storageBucket: "ice-project-manage-system.firebasestorage.app",
-  messagingSenderId: "526672568868",
-  appId: "1:526672568868:web:8ce69400bbeee3f1e4eeb1",
-  measurementId: "G-X57P8PLTNV"
-};
-        // =========================================================================
+            apiKey: "AIzaSyDCYNYBRjcbYBCJ5NjpcUrk5JfuInJ1gKg",
+            authDomain: "ice-project-manage-system.firebaseapp.com",
+            projectId: "ice-project-manage-system",
+            storageBucket: "ice-project-manage-system.firebasestorage.app",
+            messagingSenderId: "526672568868",
+            appId: "1:526672568868:web:8ce69400bbeee3f1e4eeb1"
+        };
 
         const state = { projects: [], selectedProjectId: null, userId: null, appId: 'ice-matrix-app', chartInstance: null, activeTab: 'mvp', calendarDate: new Date(), selectedDateStr: null };
 
@@ -292,9 +292,14 @@
                 const m = DOM.projectModal;
                 if (id) {
                     const p = state.projects.find(x => x.id === id);
+                    if(!p) return;
                     document.getElementById('project-id').value = p.id; document.getElementById('p-name').value = p.name;
                     ['impact', 'confidence', 'ease'].forEach(k => { document.getElementById(`p-${k}`).value = p[k]; document.getElementById(`val-${k}`).innerText = p[k]; });
-                    ['audience', 'competitors', 'advantages', 'platforms', 'payment', 'agent'].forEach(k => document.getElementById(`p-${k}`).value = p[k] || '');
+                    // 防呆：確保欄位讀取不會出錯
+                    ['audience', 'competitors', 'advantages', 'platforms', 'payment', 'agent'].forEach(k => {
+                        const el = document.getElementById(`p-${k}`);
+                        if(el) el.value = p[k] || '';
+                    });
                     document.getElementById('modal-title').innerText = "編輯專案";
                 } else {
                     document.getElementById('project-form').reset(); document.getElementById('project-id').value = '';
@@ -309,7 +314,7 @@
             openCalendarModal: () => { const m = document.getElementById('calendar-modal'); state.calendarDate = new Date(); window.selectDate(state.calendarDate.toISOString().split('T')[0]); window.renderCalendar(); m.classList.remove('hidden'); m.classList.add('flex'); requestAnimationFrame(()=> m.classList.remove('opacity-0')); },
             closeCalendarModal: () => { document.getElementById('calendar-modal').classList.add('opacity-0', 'hidden'); document.getElementById('calendar-modal').classList.remove('flex'); },
             
-            // 修正 Dashboard 開關邏輯，使用 translate-y-0 明確定位
+            // 🔥 滑出面版的指令
             openDashboard: (id) => { 
                 state.selectedProjectId = id; 
                 renderDashboardContent(); 
@@ -328,11 +333,10 @@
         let db, auth;
         const initFirebase = async () => {
             try {
-                if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes("請替換")) { throw new Error("請先在程式碼中填入你的 Firebase 金鑰！"); }
                 const app = initializeApp(firebaseConfig); db = getFirestore(app); auth = getAuth(app);
                 
                 onAuthStateChanged(auth, (user) => {
-                    if (user && user.isAnonymous) { signOut(auth); return; } // 強制清除舊版匿名帳號
+                    if (user && user.isAnonymous) { signOut(auth); return; } // 強制清除舊版匿名帳號，避免破圖
                     if (user) {
                         state.userId = user.uid;
                         const photo = user.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
@@ -429,18 +433,27 @@
             }).join('') : `<div class="text-center text-gray-500 mt-10 text-sm">尚未建立專案</div>`;
         };
 
+        // 🔥 防禦性編程：確保 HTML ID 變更不會讓程式死掉
         const renderDashboardContent = () => {
             const p = state.projects.find(x => x.id === state.selectedProjectId); if (!p) return ui.closeDashboard();
             DOM.dashboardTitle.innerText = p.name;
             const total = p.mvpSteps?.length || 0, comp = p.mvpSteps?.filter(s=>s.completed).length || 0, pct = total ? Math.round(comp/total*100) : 0;
             document.getElementById('mvp-progress-text').innerText = `${pct}%`; document.getElementById('mvp-progress-bar').style.width = `${pct}%`;
             DOM.mvpList.innerHTML = total ? p.mvpSteps.map(s => `<li class="p-3 rounded-lg bg-gray-900 border ${s.completed?'border-emerald-500/30':'border-gray-700'} flex flex-col gap-1 transition-colors hover:bg-gray-800"><div class="flex justify-between"><label class="flex gap-3 cursor-pointer flex-1 items-start"><input type="checkbox" ${s.completed?'checked':''} onchange="toggleMvp('${p.id}', '${s.id}')" class="mt-1 w-4 h-4 rounded bg-gray-800 shrink-0"><span class="text-sm ${s.completed?'text-gray-500 line-through':'text-gray-200'} leading-tight">${s.text}</span></label><button onclick="deleteMvp('${p.id}', '${s.id}')" class="text-gray-500 hover:text-red-400 p-1 shrink-0"><i class="fa-solid fa-xmark"></i></button></div>${s.startDate ? `<div class="text-[11px] text-indigo-300 ml-7"><i class="fa-regular fa-calendar-check"></i> ${s.startDate} - ${s.endDate||''}</div>` : ''}</li>`).join('') : '<div class="text-sm text-gray-500 text-center py-4">請在上方的表單新增小任務！</div>';
-            ['audience', 'competitors', 'advantages', 'payment'].forEach(k => document.getElementById(`view-${k}`).innerText = p[k] || '尚未設定');
-            document.getElementById('view-platforms').innerHTML = p.platforms ? p.platforms.split(',').map(url=>`<a href="${url.trim().startsWith('http')?url.trim():'https://'+url.trim()}" target="_blank" class="block hover:underline truncate"><i class="fa-solid fa-link text-xs"></i> ${url.trim()}</a>`).join('') : '尚未設定';
-            document.getElementById('view-agent').innerText = p.agent || '尚未設定';
+            
+            // 安全填入資料，找不到標籤也不會當機
+            ['audience', 'competitors', 'advantages', 'payment'].forEach(k => {
+                const el = document.getElementById(`view-${k}`);
+                if(el) el.innerText = p[k] || '尚未設定';
+            });
+            
+            const platEl = document.getElementById('view-platforms');
+            if(platEl) platEl.innerHTML = p.platforms ? p.platforms.split(',').map(url=>`<a href="${url.trim().startsWith('http')?url.trim():'https://'+url.trim()}" target="_blank" class="block hover:underline truncate"><i class="fa-solid fa-link text-xs"></i> ${url.trim()}</a>`).join('') : '尚未設定';
+            
+            const agentEl = document.getElementById('view-agent');
+            if(agentEl) agentEl.innerText = p.agent || '尚未設定';
         };
 
-        // 恢復被遺漏的四象限繪圖外掛
         const quadrantPlugin = {
             id: 'quadrant',
             beforeDraw(chart) {
@@ -448,19 +461,14 @@
                 const midX = x.getPixelForValue(5.5); 
                 const midY = y.getPixelForValue(5.5);
                 ctx.save();
-                
                 ctx.fillStyle = 'rgba(16, 185, 129, 0.05)'; ctx.fillRect(midX, top, right - midX, midY - top);
                 ctx.fillStyle = 'rgba(16, 185, 129, 0.3)'; ctx.font = 'bold 14px Inter'; ctx.fillText('Quick Wins (優先)', midX + 15, top + 25);
-
                 ctx.fillStyle = 'rgba(59, 130, 246, 0.05)'; ctx.fillRect(left, top, midX - left, midY - top);
                 ctx.fillStyle = 'rgba(59, 130, 246, 0.3)'; ctx.font = 'bold 14px Inter'; ctx.fillText('Major Projects', left + 15, top + 25);
-
                 ctx.fillStyle = 'rgba(234, 179, 8, 0.05)'; ctx.fillRect(midX, midY, right - midX, bottom - midY);
                 ctx.fillStyle = 'rgba(234, 179, 8, 0.3)'; ctx.font = 'bold 14px Inter'; ctx.fillText('Fill-ins (零碎)', midX + 15, bottom - 15);
-
                 ctx.fillStyle = 'rgba(239, 68, 68, 0.05)'; ctx.fillRect(left, midY, midX - left, bottom - midY);
                 ctx.fillStyle = 'rgba(239, 68, 68, 0.3)'; ctx.font = 'bold 14px Inter'; ctx.fillText('Drop (放棄)', left + 15, bottom - 15);
-
                 ctx.beginPath(); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
                 ctx.moveTo(midX, top); ctx.lineTo(midX, bottom); ctx.moveTo(left, midY); ctx.lineTo(right, midY); ctx.stroke();
                 ctx.restore();
@@ -502,3 +510,4 @@
     </script>
 </body>
 </html>
+```
