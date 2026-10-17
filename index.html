@@ -32,14 +32,16 @@
             </h1>
         </div>
         <div class="flex items-center gap-3">
-            <div id="auth-status" class="flex items-center gap-2 text-sm text-gray-400">
-                <i class="fa-solid fa-circle-notch fa-spin"></i> 連線中...
-            </div>
+            <!-- Google 登入區塊 -->
+            <div id="auth-status" class="flex items-center gap-2"></div>
+            <button id="btn-login" class="bg-white text-gray-800 hover:bg-gray-100 px-3 py-1.5 rounded-lg text-sm font-medium transition shadow flex items-center gap-2 hidden">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-4 h-4" alt="Google"> <span class="hidden sm:inline">登入</span>
+            </button>
             <button onclick="ui.openCalendarModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition shadow-lg shadow-indigo-600/30 flex items-center gap-2">
-                <i class="fa-regular fa-calendar-days"></i> <span class="hidden sm:inline">任務日曆</span>
+                <i class="fa-regular fa-calendar-days"></i> <span class="hidden sm:inline">日曆</span>
             </button>
             <button onclick="ui.openProjectModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm font-medium transition shadow-lg shadow-blue-600/30 flex items-center gap-2">
-                <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">新增專案</span>
+                <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">新增</span>
             </button>
         </div>
     </header>
@@ -60,10 +62,9 @@
                 <canvas id="iceChart"></canvas>
             </div>
 
-            <!-- Dashboard Panel (已針對手機版優化，改為全螢幕底部彈出) -->
+            <!-- Dashboard Panel -->
             <div id="dashboard-panel" class="fixed md:absolute bottom-0 left-0 right-0 glass-panel border-t border-gray-700 transform translate-y-full transition-transform duration-300 flex flex-col h-[85vh] md:h-[65%] shadow-[0_-20px_50px_rgba(0,0,0,0.7)] z-40 md:z-20 rounded-t-2xl md:rounded-none">
                 
-                <!-- 手機版拖曳條裝飾 -->
                 <div class="w-full flex justify-center pt-2 md:hidden">
                     <div class="w-12 h-1.5 bg-gray-600 rounded-full"></div>
                 </div>
@@ -84,8 +85,7 @@
                 
                 <div class="flex-1 overflow-y-auto bg-gray-900/50">
                     <div id="content-mvp" class="p-4 md:p-6 block">
-                        <!-- MVP Form v2 -->
-                        <div class="mb-6 bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-lg">
+                        <div class="mb-6 bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-lg max-w-4xl mx-auto">
                             <h4 class="text-sm font-bold text-emerald-400 mb-2"><i class="fa-solid fa-flask"></i> 建立 MVP 驗證假說</h4>
                             <p class="text-xs text-gray-400 mb-3 leading-relaxed">精神：不寫「待辦事項」，寫下「實驗行動」與「成功標準」。</p>
                             <form id="mvp-form" class="flex flex-col gap-3">
@@ -109,8 +109,7 @@
                             </form>
                         </div>
 
-                        <!-- Progress Bar -->
-                        <div class="mb-4">
+                        <div class="mb-4 max-w-4xl mx-auto">
                             <div class="flex justify-between text-xs text-gray-300 mb-2 font-medium">
                                 <span>假說驗證成功率</span>
                                 <span id="mvp-progress-text">0%</span>
@@ -119,10 +118,10 @@
                                 <div id="mvp-progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
                             </div>
                         </div>
-                        <ul id="mvp-list" class="space-y-3 pb-8"></ul>
+                        <ul id="mvp-list" class="space-y-3 pb-8 max-w-4xl mx-auto"></ul>
                     </div>
 
-                    <div id="content-market" class="p-4 md:p-6 hidden space-y-4 text-sm">
+                    <div id="content-market" class="p-4 md:p-6 hidden space-y-4 text-sm max-w-4xl mx-auto">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
                                 <h4 class="text-gray-300 font-bold mb-2"><i class="fa-solid fa-users text-blue-400"></i> 目標受眾 (TA)</h4>
@@ -147,7 +146,7 @@
                         </div>
                     </div>
 
-                    <div id="content-agent" class="p-4 md:p-6 hidden space-y-4">
+                    <div id="content-agent" class="p-4 md:p-6 hidden space-y-4 max-w-4xl mx-auto">
                         <div class="bg-blue-900/20 border border-blue-500/30 p-4 rounded-lg">
                             <h4 class="text-blue-400 font-bold mb-2"><i class="fa-solid fa-robot"></i> Agent 自動化整合建議</h4>
                             <p class="text-sm text-gray-300 mb-2">未來可在此配置 Webhook 或是 Prompt 模板。系統可以抓取您在 MVP 任務中標註為 <code>[Auto]</code> 的子任務，自動拋送給您的 n8n 或 Langflow 代理執行。</p>
@@ -300,7 +299,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // =========================================================================
@@ -366,12 +365,23 @@
         const initFirebase = async () => {
             try {
                 const app = initializeApp(firebaseConfig); db = getFirestore(app); auth = getAuth(app);
+                const provider = new GoogleAuthProvider();
+                
+                document.getElementById('btn-login').onclick = () => signInWithPopup(auth, provider);
+                
                 onAuthStateChanged(auth, (user) => {
-                    if (user) { state.userId = user.uid; DOM.authStatus.innerHTML = `<i class="fa-solid fa-cloud text-emerald-400"></i> 已連線`; listenToProjects(); } 
-                    else { DOM.authStatus.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-yellow-500"></i> 連線中...`; }
+                    if (user && !user.isAnonymous) {
+                        state.userId = user.uid;
+                        DOM.authStatus.innerHTML = `<img src="${user.photoURL}" class="w-6 h-6 rounded-full border border-gray-600" title="${user.displayName}"> <span class="text-sm font-medium text-gray-300 hidden sm:inline">${user.displayName}</span>`;
+                        document.getElementById('btn-login').classList.add('hidden');
+                        listenToProjects();
+                    } else {
+                        state.userId = null; state.projects = []; renderProjects();
+                        document.getElementById('btn-login').classList.remove('hidden');
+                        DOM.authStatus.innerHTML = `<span class="text-sm text-gray-400">尚未登入</span>`;
+                    }
                 });
-                await signInAnonymously(auth);
-            } catch (err) { DOM.authStatus.innerHTML = `<i class="fa-solid fa-xmark text-red-500"></i> 連線失敗`; }
+            } catch (err) { console.error(err); DOM.authStatus.innerHTML = `<i class="fa-solid fa-xmark text-red-500"></i> 連線失敗`; }
         };
 
         const listenToProjects = () => {
@@ -384,7 +394,7 @@
         };
 
         const saveProject = async (e) => {
-            e.preventDefault(); if (!state.userId) return;
+            e.preventDefault(); if (!state.userId) return ui.showToast("請先登入", "error");
             const id = document.getElementById('project-id').value || crypto.randomUUID();
             const p = { id, name: document.getElementById('p-name').value.trim(), impact: +document.getElementById('p-impact').value, confidence: +document.getElementById('p-confidence').value, ease: +document.getElementById('p-ease').value, audience: document.getElementById('p-audience').value, competitors: document.getElementById('p-competitors').value, advantages: document.getElementById('p-advantages').value, platforms: document.getElementById('p-platforms').value, payment: document.getElementById('p-payment').value, agent: document.getElementById('p-agent').value, mvpSteps: state.projects.find(x=>x.id===id)?.mvpSteps || [] };
             await setDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', id), p);
@@ -493,7 +503,7 @@
             const p = state.projects.find(x => x.id === state.selectedProjectId); if (!p) return ui.closeDashboard();
             DOM.dashboardTitle.innerText = p.name;
             
-            // MVP Tab Rendering
+            // MVP Tab Rendering (V2)
             const steps = p.mvpSteps || [];
             const comp = steps.filter(s=> s.status === 'success' || s.completed === true).length;
             const total = steps.length;
@@ -533,7 +543,7 @@
                 </li>`;
             }).join('') : '<div class="text-sm text-gray-500 text-center py-6">請在上方建立第一個 MVP 驗證假說！</div>';
             
-            // Market Tab Rendering (Safe access)
+            // Market Tab Rendering
             ['ta', 'comp', 'adv', 'payment'].forEach(k => {
                 const el = document.getElementById(`view-${k}`);
                 const fullKey = k==='ta'?'audience':(k==='comp'?'competitors':(k==='adv'?'advantages':k));
