@@ -2,14 +2,14 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ICE 專案決策系統 v2.9</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ICE 專案決策系統 v2.91</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; overflow: hidden; }
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; overflow: hidden; overscroll-behavior-y: none; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -21,7 +21,7 @@
         .tab-btn { transition: all 0.3s ease; }
     </style>
 </head>
-<body class="h-screen flex flex-col relative">
+<body class="h-[100dvh] flex flex-col relative">
 
     <header class="glass-panel px-6 py-4 flex justify-between items-center z-10 border-b border-gray-800 shrink-0">
         <div class="flex items-center gap-3">
@@ -70,7 +70,7 @@
             </div>
 
             <!-- Dashboard Panel -->
-            <div id="dashboard-panel" class="absolute bottom-0 left-0 right-0 glass-panel border-t border-gray-700 transform translate-y-full transition-transform duration-300 flex flex-col h-[90%] md:h-[75%] shadow-[0_-20px_50px_rgba(0,0,0,0.8)] z-30 rounded-t-3xl md:rounded-none">
+            <div id="dashboard-panel" class="absolute bottom-0 left-0 right-0 glass-panel border-t border-gray-700 transform translate-y-full transition-transform duration-300 flex flex-col h-[90dvh] md:h-[75dvh] shadow-[0_-20px_50px_rgba(0,0,0,0.8)] z-30 rounded-t-3xl md:rounded-none">
                 
                 <div class="w-full flex justify-center pt-3 pb-1 md:hidden shrink-0"><div class="w-12 h-1.5 bg-gray-600 rounded-full"></div></div>
 
@@ -90,8 +90,8 @@
                 <div class="flex-1 overflow-y-auto bg-gray-900/80 relative">
                     
                     <!-- Ideas Tab -->
-                    <div id="content-ideas" class="p-4 md:p-8 hidden space-y-6 max-w-5xl mx-auto w-full">
-                        <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700 shadow-lg">
+                    <div id="content-ideas" class="p-4 md:p-8 hidden space-y-6 max-w-5xl mx-auto w-full pb-20">
+                        <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700 shadow-lg shrink-0">
                             <h4 class="text-base font-bold text-yellow-400 mb-2"><i class="fa-solid fa-inbox"></i> 點子收件匣 (Brain Dump)</h4>
                             <p class="text-sm text-gray-400 mb-4">先把想到的功能、問題、靈感倒出來。等想清楚後，再一鍵轉換成嚴謹的 MVP 任務。</p>
                             <form id="idea-form" class="flex gap-3">
@@ -99,12 +99,12 @@
                                 <button type="submit" class="bg-yellow-600 hover:bg-yellow-500 text-white px-6 py-3 rounded-xl text-sm transition font-medium whitespace-nowrap shadow-lg shadow-yellow-600/20">貼上靈感</button>
                             </form>
                         </div>
-                        <div id="idea-list" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-12"></div>
+                        <div id="idea-list" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
                     </div>
 
                     <!-- MVP Tab -->
-                    <div id="content-mvp" class="p-4 md:p-8 block max-w-4xl mx-auto w-full">
-                        <div class="mb-8 bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-700 shadow-xl">
+                    <div id="content-mvp" class="p-4 md:p-8 block max-w-4xl mx-auto w-full pb-20">
+                        <div class="mb-8 bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-700 shadow-xl shrink-0">
                             <h4 class="text-base font-bold text-emerald-400 mb-2"><i class="fa-solid fa-flask"></i> 建立 MVP 驗證假說</h4>
                             <p class="text-sm text-gray-400 mb-5 leading-relaxed">精神：不寫「待辦事項」，寫下「實驗行動」與「成功標準」。</p>
                             <form id="mvp-form" class="flex flex-col gap-4">
@@ -118,22 +118,22 @@
                                 </div>
                             </form>
                         </div>
-                        <div class="mb-5">
+                        <div class="mb-5 shrink-0">
                             <div class="flex justify-between text-sm text-gray-300 mb-2 font-medium"><span>假說驗證進度</span><span id="mvp-progress-text">0%</span></div>
                             <div class="w-full bg-gray-700 rounded-full h-2.5 overflow-hidden"><div id="mvp-progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2.5 transition-all duration-500" style="width: 0%"></div></div>
                         </div>
-                        <ul id="mvp-list" class="space-y-4 pb-20"></ul>
+                        <ul id="mvp-list" class="space-y-4"></ul>
                     </div>
 
-                    <!-- Market Tab (V2.9 加入願景) -->
-                    <div id="content-market" class="p-4 md:p-8 hidden space-y-5 text-sm max-w-4xl mx-auto w-full pb-12">
+                    <!-- Market Tab -->
+                    <div id="content-market" class="p-4 md:p-8 hidden space-y-5 text-sm max-w-4xl mx-auto w-full pb-20">
                         <!-- 願景區塊 -->
-                        <div class="bg-indigo-900/20 p-5 md:p-6 rounded-2xl border border-indigo-500/30 shadow-md">
+                        <div class="bg-indigo-900/20 p-5 md:p-6 rounded-2xl border border-indigo-500/30 shadow-md shrink-0">
                             <h4 class="text-indigo-300 font-bold mb-3 text-base"><i class="fa-solid fa-star text-yellow-400"></i> 專案願景與 AI 脈絡 (北極星)</h4>
                             <p id="view-vision" class="text-gray-300 whitespace-pre-wrap leading-relaxed text-sm"></p>
                         </div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 shrink-0">
                             <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700"><h4 class="text-gray-300 font-bold mb-3 text-base"><i class="fa-solid fa-users text-blue-400"></i> 目標受眾</h4><p id="view-ta" class="text-gray-400 whitespace-pre-wrap leading-relaxed"></p></div>
                             <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700"><h4 class="text-gray-300 font-bold mb-3 text-base"><i class="fa-solid fa-chess-knight text-red-400"></i> 競爭對手</h4><p id="view-comp" class="text-gray-400 whitespace-pre-wrap leading-relaxed"></p></div>
                             <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700 md:col-span-2"><h4 class="text-gray-300 font-bold mb-3 text-base"><i class="fa-solid fa-gem text-emerald-400"></i> 勝出關鍵優勢</h4><p id="view-adv" class="text-gray-400 whitespace-pre-wrap leading-relaxed"></p></div>
@@ -141,12 +141,12 @@
                     </div>
 
                     <!-- Agent Tab -->
-                    <div id="content-agent" class="p-4 md:p-8 hidden space-y-5 max-w-4xl mx-auto w-full pb-12">
-                        <div class="bg-blue-900/20 border border-blue-500/30 p-5 rounded-2xl">
+                    <div id="content-agent" class="p-4 md:p-8 hidden space-y-5 max-w-4xl mx-auto w-full pb-20">
+                        <div class="bg-blue-900/20 border border-blue-500/30 p-5 rounded-2xl shrink-0">
                             <h4 class="text-blue-400 font-bold mb-3 text-base"><i class="fa-solid fa-satellite-dish"></i> Webhook 自動化綁定</h4>
                             <p class="text-sm text-gray-300 mb-3 leading-relaxed">如果您有使用 n8n 或 Make，請將 Webhook URL 貼在這裡。未來在 MVP 任務的規劃面板中，點擊機器人按鈕即可將該任務的資料(含專屬 Prompt) POST 送出，觸發自動化腳本！</p>
                         </div>
-                        <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700">
+                        <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700 shrink-0">
                             <h4 class="text-gray-300 font-bold mb-3 text-sm">設定您的 Webhook URL</h4>
                             <div class="flex gap-3">
                                 <input type="text" id="view-webhook-input" placeholder="https://hook.us2.make.com/..." class="flex-1 bg-gray-900 border border-gray-600 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 outline-none transition">
@@ -161,7 +161,7 @@
 
     <!-- Task Detail Modal -->
     <div id="task-detail-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-[70] opacity-0 transition-opacity p-4">
-        <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-3xl transform scale-95 transition-transform duration-300 relative flex flex-col max-h-[95vh]">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-3xl transform scale-95 transition-transform duration-300 relative flex flex-col max-h-[90dvh]">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-t-2xl"></div>
             
             <div class="p-5 md:p-6 border-b border-gray-700 flex justify-between items-start shrink-0">
@@ -173,11 +173,11 @@
                 <button type="button" onclick="ui.closeTaskDetailModal()" class="text-gray-400 hover:text-white p-2 -mr-2 transition shrink-0"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             
-            <div class="p-5 md:p-6 overflow-y-auto flex-1 space-y-6">
+            <div class="p-5 md:p-6 overflow-y-auto flex-1 space-y-6 pb-6">
                 <input type="hidden" id="task-modal-pid">
                 <input type="hidden" id="task-modal-sid">
                 
-                <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <section class="grid grid-cols-1 md:grid-cols-2 gap-4 shrink-0">
                     <div class="bg-gray-900/50 p-4 rounded-xl border border-gray-700">
                         <h4 class="text-sm font-semibold text-gray-300 mb-3"><i class="fa-regular fa-calendar-check text-blue-400"></i> 排程設定</h4>
                         <div class="flex items-center gap-2">
@@ -196,7 +196,7 @@
                     </div>
                 </section>
 
-                <section class="space-y-4">
+                <section class="space-y-4 shrink-0">
                     <div>
                         <h4 class="text-sm font-semibold text-yellow-400 mb-2"><i class="fa-solid fa-pen-to-square"></i> 執行筆記與參考資料</h4>
                         <p class="text-xs text-gray-500 mb-2">可貼上 Google 文件連結、心得紀錄、或是執行過程中的發現。</p>
@@ -221,18 +221,18 @@
         </div>
     </div>
 
-    <!-- Project Modal (V2.9 新增願景欄位) -->
+    <!-- Project Modal (修復過高捲動問題) -->
     <div id="project-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-[60] opacity-0 transition-opacity p-4">
-        <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-2xl transform scale-95 transition-transform duration-300 relative flex flex-col max-h-[95vh] md:max-h-[90vh]">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-2xl transform scale-95 transition-transform duration-300 relative flex flex-col max-h-[90dvh]">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-t-2xl"></div>
             <div class="p-6 border-b border-gray-700 flex justify-between items-center shrink-0">
                 <h2 id="modal-title" class="text-xl font-bold text-white">專案設定</h2>
                 <button type="button" onclick="ui.closeProjectModal()" class="text-gray-400 hover:text-white p-2 -mr-2 transition"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <div class="p-6 overflow-y-auto flex-1">
+            <div class="p-6 overflow-y-auto flex-1 space-y-8 pb-6">
                 <form id="project-form" class="space-y-8">
                     <input type="hidden" id="project-id">
-                    <section class="space-y-5">
+                    <section class="space-y-5 shrink-0">
                         <h3 class="text-emerald-400 font-semibold border-b border-gray-700 pb-2 text-lg">1. 核心定義</h3>
                         <div>
                             <label class="block text-sm font-medium text-gray-300 mb-2">專案名稱</label>
@@ -252,7 +252,8 @@
                             <div class="space-y-2"><div class="flex justify-between text-sm"><span class="text-yellow-400 font-medium">容易度</span><span id="val-ease" class="font-bold text-white">5</span></div><input type="range" id="p-ease" min="1" max="10" value="5" oninput="document.getElementById('val-ease').innerText = this.value"></div>
                         </div>
                     </section>
-                    <section class="space-y-5">
+                    
+                    <section class="space-y-5 shrink-0">
                         <h3 class="text-blue-400 font-semibold border-b border-gray-700 pb-2 text-lg">2. 市場策略</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div><label class="block text-sm font-medium text-gray-300 mb-2">目標受眾</label><textarea id="p-audience" rows="3" placeholder="誰最需要這個解決方案？" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition shadow-inner"></textarea></div>
@@ -271,7 +272,7 @@
 
     <!-- Calendar Modal -->
     <div id="calendar-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity p-4">
-        <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] md:h-[80vh] transform scale-95 transition-transform duration-300 relative flex flex-col overflow-hidden">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-4xl h-[90dvh] md:h-[80dvh] transform scale-95 transition-transform duration-300 relative flex flex-col overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
             <div class="p-5 border-b border-gray-700 flex justify-between items-center shrink-0">
                 <h2 class="text-xl font-bold text-white flex items-center gap-2"><i class="fa-regular fa-calendar-days text-indigo-400"></i> 任務日曆</h2>
@@ -287,11 +288,11 @@
                     <div class="grid grid-cols-7 gap-1 text-center text-sm font-bold text-gray-500 mb-3 shrink-0">
                         <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
                     </div>
-                    <div id="calendar-grid" class="grid grid-cols-7 gap-2 flex-1 auto-rows-fr min-h-[250px] overflow-y-auto"></div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-2 flex-1 auto-rows-fr min-h-[250px] overflow-y-auto pb-4"></div>
                 </div>
                 <div class="w-full md:w-2/5 p-5 md:p-6 flex flex-col overflow-y-auto relative h-[55%] md:h-auto bg-gray-900">
                     <h4 id="selected-date-title" class="font-bold text-indigo-400 mb-4 pb-3 border-b border-gray-700 text-lg sticky top-0 bg-gray-900/95 backdrop-blur z-10 pt-1 shrink-0">選擇日期</h4>
-                    <div id="day-tasks-list" class="space-y-4 pb-8 flex-1"></div>
+                    <div id="day-tasks-list" class="space-y-4 pb-12 flex-1"></div>
                 </div>
             </div>
         </div>
@@ -346,13 +347,13 @@
                     const p = state.projects.find(x => x.id === id); if(!p) return;
                     document.getElementById('project-id').value = p.id; document.getElementById('p-name').value = p.name;
                     ['impact', 'confidence', 'ease'].forEach(k => { document.getElementById(`p-${k}`).value = p[k]; document.getElementById(`val-${k}`).innerText = p[k]; });
-                    // V2.9 載入 Vision
-                    ['audience', 'competitors', 'advantages', 'vision'].forEach(k => { const el = document.getElementById(`p-${k}`); if(el) el.value = p[k] || ''; });
+                    document.getElementById('p-vision').value = p.vision || '';
+                    ['audience', 'competitors', 'advantages'].forEach(k => { const el = document.getElementById(`p-${k}`); if(el) el.value = p[k] || ''; });
                     document.getElementById('modal-title').innerText = "編輯專案";
                 } else {
                     document.getElementById('project-form').reset(); document.getElementById('project-id').value = '';
                     ['impact', 'confidence', 'ease'].forEach(k => document.getElementById(`val-${k}`).innerText = '5');
-                    document.getElementById('p-vision').value = ''; // 清空願景
+                    document.getElementById('p-vision').value = ''; 
                     document.getElementById('modal-title').innerText = "新增專案";
                 }
                 m.classList.remove('hidden'); m.classList.add('flex'); requestAnimationFrame(() => { m.classList.remove('opacity-0'); inner.classList.remove('scale-95'); });
@@ -370,7 +371,7 @@
                     const btn = document.getElementById(`tab-${t}`);
                     if(t === tab) { btn.className = `tab-btn pb-3 border-b-2 font-medium border-blue-500 text-blue-400`; } 
                     else { btn.className = `tab-btn pb-3 border-b-2 border-transparent text-gray-400 hover:text-gray-200`; }
-                    document.getElementById(`content-${t}`).className = `p-4 md:p-8 ${t===tab ? 'block' : 'hidden'} space-y-6 max-w-5xl mx-auto w-full pb-12`; 
+                    document.getElementById(`content-${t}`).className = `p-4 md:p-8 ${t===tab ? 'block' : 'hidden'} space-y-6 max-w-5xl mx-auto w-full pb-20`; 
                 }); 
             },
             toggleArchiveView: () => {
@@ -477,7 +478,6 @@
             try {
                 await fetch(p.webhookUrl, {
                     method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
-                    // V2.9 拋送附帶 projectVision
                     body: JSON.stringify({ projectName: p.name, projectVision: p.vision, task: actionText, status: currentModalTaskStatus, notes: notes, aiPrompt: prompt })
                 });
                 ui.showToast("已成功拋送資料！", "success");
@@ -534,7 +534,7 @@
             const existing = state.projects.find(x=>x.id===id);
             const p = { 
                 id, name: document.getElementById('p-name').value.trim(), impact: +document.getElementById('p-impact').value, confidence: +document.getElementById('p-confidence').value, ease: +document.getElementById('p-ease').value, 
-                vision: document.getElementById('p-vision').value.trim(), // V2.9 儲存願景
+                vision: document.getElementById('p-vision').value.trim(), 
                 audience: document.getElementById('p-audience').value, competitors: document.getElementById('p-competitors').value, advantages: document.getElementById('p-advantages').value,
                 webhookUrl: existing?.webhookUrl || '', archived: existing?.archived || false, mvpSteps: existing?.mvpSteps || [], ideas: existing?.ideas || [] 
             };
@@ -629,7 +629,6 @@
             try {
                 await fetch(p.webhookUrl, {
                     method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
-                    // V2.9 拋送附帶 projectVision
                     body: JSON.stringify({ projectName: p.name, projectVision: p.vision, task: step.action, metric: step.metric, group: step.group, status: step.status, learning: step.retro })
                 });
                 ui.showToast("已成功拋送資料！", "success");
