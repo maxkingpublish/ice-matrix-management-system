@@ -33,9 +33,9 @@
             </h1>
         </div>
         <div class="flex items-center gap-4">
-            <div id="auth-status" class="flex items-center gap-2"></div>
+            <div id="auth-status" class="flex items-center gap-2 text-sm text-gray-400"><i class="fa-solid fa-spinner fa-spin"></i> 系統啟動中...</div>
             <button id="btn-login" class="bg-white text-gray-800 hover:bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium transition shadow flex items-center gap-2 hidden">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-4 h-4" alt="Google"> <span class="hidden sm:inline">登入</span>
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-4 h-4" alt="Google"> <span class="hidden sm:inline">Google 登入</span>
             </button>
             <button onclick="ui.openCalendarModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-lg shadow-indigo-600/30 flex items-center gap-2">
                 <i class="fa-regular fa-calendar-days"></i> <span class="hidden sm:inline">任務日曆</span>
@@ -87,11 +87,11 @@
                 
                 <div class="flex-1 overflow-y-auto bg-gray-900/50">
                     
-                    <!-- Ideas Tab (便利貼牆) -->
+                    <!-- Ideas Tab -->
                     <div id="content-ideas" class="p-4 md:p-8 hidden space-y-6 max-w-5xl mx-auto w-full">
                         <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700 shadow-lg">
                             <h4 class="text-base font-bold text-yellow-400 mb-2"><i class="fa-solid fa-inbox"></i> 點子收件匣 (Brain Dump)</h4>
-                            <p class="text-sm text-gray-400 mb-4">先把想到的功能、問題、靈感全部倒出來，清空大腦負擔。等想清楚後，再一鍵轉換成嚴謹的 MVP 任務。</p>
+                            <p class="text-sm text-gray-400 mb-4">先把想到的功能、問題、靈感倒出來。等想清楚後，再一鍵轉換成嚴謹的 MVP 任務。</p>
                             <form id="idea-form" class="flex gap-3">
                                 <input type="text" id="idea-input" required placeholder="例如：想增加 LINE 登入功能..." class="flex-1 bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-yellow-500 transition">
                                 <button type="submit" class="bg-yellow-600 hover:bg-yellow-500 text-white px-6 py-3 rounded-xl text-sm transition font-medium whitespace-nowrap shadow-lg shadow-yellow-600/20">貼上靈感</button>
@@ -100,23 +100,23 @@
                         <div id="idea-list" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-10"></div>
                     </div>
 
-                    <!-- MVP Tab -->
+                    <!-- MVP Tab (加入群組與排序) -->
                     <div id="content-mvp" class="p-4 md:p-8 block max-w-4xl mx-auto w-full">
                         <div class="mb-8 bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-700 shadow-xl">
                             <h4 class="text-base font-bold text-emerald-400 mb-2"><i class="fa-solid fa-flask"></i> 建立 MVP 驗證假說</h4>
                             <p class="text-sm text-gray-400 mb-5 leading-relaxed">精神：不寫「待辦事項」，寫下「實驗行動」與「成功標準」。</p>
                             <form id="mvp-form" class="flex flex-col gap-4">
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div><label class="block text-xs text-gray-400 mb-1.5 font-medium">1. 採取行動</label><input type="text" id="mvp-action" required placeholder="例：在首頁加入 Email 訂閱" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 outline-none transition"></div>
-                                    <div><label class="block text-xs text-gray-400 mb-1.5 font-medium">2. 驗證指標</label><input type="text" id="mvp-metric" required placeholder="例：一週內獲得 50 個訂閱" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 outline-none transition"></div>
-                                    <div><label class="block text-xs text-gray-400 mb-1.5 font-medium">3. 任務群組 (選填)</label><input type="text" id="mvp-group" placeholder="例：階段一、後端開發" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 outline-none transition"></div>
+                                    <div class="md:col-span-2"><label class="block text-xs text-gray-400 mb-1.5 font-medium">1. 採取行動 (Action)</label><input type="text" id="mvp-action" required placeholder="例：在落地頁加入 Email 訂閱框" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 outline-none transition"></div>
+                                    <div class="md:col-span-1"><label class="block text-xs text-purple-400 mb-1.5 font-medium">群組標籤 (選填)</label><input type="text" id="mvp-group" placeholder="例：階段一、後端" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-2.5 text-sm text-white focus:border-purple-500 outline-none transition"></div>
                                 </div>
+                                <div><label class="block text-xs text-gray-400 mb-1.5 font-medium">2. 驗證指標 (Metric)</label><input type="text" id="mvp-metric" required placeholder="例：一週內獲得 50 個訂閱" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 outline-none transition"></div>
                                 <div class="flex gap-3 items-center flex-wrap bg-gray-900/50 p-3 rounded-xl border border-gray-700/50 mt-2">
                                     <span class="text-sm text-gray-400 ml-1"><i class="fa-regular fa-calendar"></i> 觀察期:</span>
                                     <input type="date" id="mvp-start" class="bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 text-sm text-gray-300 outline-none focus:border-blue-500">
                                     <span class="text-sm text-gray-500">至</span>
                                     <input type="date" id="mvp-end" class="bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 text-sm text-gray-300 outline-none focus:border-blue-500">
-                                    <button type="submit" class="ml-auto bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm transition font-semibold shadow-lg shadow-blue-600/30">建立實驗</button>
+                                    <button type="submit" class="ml-auto bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm transition font-semibold shadow-lg shadow-blue-600/30">加入實驗</button>
                                 </div>
                             </form>
                         </div>
@@ -155,7 +155,7 @@
         </section>
     </main>
 
-    <!-- Project Modal (已補齊所有 Placeholder) -->
+    <!-- Project Modal -->
     <div id="project-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-50 opacity-0 transition-opacity p-4">
         <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-2xl transform scale-95 transition-transform duration-300 relative flex flex-col max-h-[95vh] md:max-h-[90vh]">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-t-2xl"></div>
@@ -168,10 +168,7 @@
                     <input type="hidden" id="project-id">
                     <section class="space-y-5">
                         <h3 class="text-emerald-400 font-semibold border-b border-gray-700 pb-2 text-lg">1. 核心定義</h3>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">專案名稱</label>
-                            <input type="text" id="p-name" required placeholder="例如：自動化 IG 貼文產生器" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition shadow-inner">
-                        </div>
+                        <div><label class="block text-sm font-medium text-gray-300 mb-2">專案名稱</label><input type="text" id="p-name" required placeholder="例如：自動化 IG 貼文產生器" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition shadow-inner"></div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 bg-gray-900/50 p-5 rounded-xl border border-gray-700 shadow-inner">
                             <div class="space-y-2"><div class="flex justify-between text-sm"><span class="text-emerald-400 font-medium">影響力</span><span id="val-impact" class="font-bold text-white">5</span></div><input type="range" id="p-impact" min="1" max="10" value="5" oninput="document.getElementById('val-impact').innerText = this.value"></div>
                             <div class="space-y-2"><div class="flex justify-between text-sm"><span class="text-blue-400 font-medium">信心度</span><span id="val-confidence" class="font-bold text-white">5</span></div><input type="range" id="p-confidence" min="1" max="10" value="5" oninput="document.getElementById('val-confidence').innerText = this.value"></div>
@@ -181,10 +178,10 @@
                     <section class="space-y-5">
                         <h3 class="text-blue-400 font-semibold border-b border-gray-700 pb-2 text-lg">2. 市場策略</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div><label class="block text-sm font-medium text-gray-300 mb-2">目標受眾</label><textarea id="p-audience" rows="3" placeholder="誰最需要這個？解決誰的痛點？" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition shadow-inner"></textarea></div>
-                            <div><label class="block text-sm font-medium text-gray-300 mb-2">競爭對手</label><textarea id="p-competitors" rows="3" placeholder="市面上現有的替代方案？" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition shadow-inner"></textarea></div>
+                            <div><label class="block text-sm font-medium text-gray-300 mb-2">目標受眾</label><textarea id="p-audience" rows="3" placeholder="誰最需要這個解決方案？" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition shadow-inner"></textarea></div>
+                            <div><label class="block text-sm font-medium text-gray-300 mb-2">競爭對手</label><textarea id="p-competitors" rows="3" placeholder="市面上有哪些替代方案？" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition shadow-inner"></textarea></div>
                         </div>
-                        <div><label class="block text-sm font-medium text-gray-300 mb-2">關鍵優勢 (Moat)</label><input type="text" id="p-advantages" placeholder="例如：我有獨家的爬蟲技術、我有現成社團名單..." class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition shadow-inner"></div>
+                        <div><label class="block text-sm font-medium text-gray-300 mb-2">關鍵優勢 (Moat)</label><input type="text" id="p-advantages" placeholder="例如：獨家技術、既有流量池..." class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition shadow-inner"></div>
                     </section>
                 </form>
             </div>
@@ -219,6 +216,9 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // =========================================================================
+        // Firebase Config (你的金鑰)
+        // =========================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyDCYNYBRjcbYBCJ5NjpcUrk5JfuInJ1gKg",
             authDomain: "ice-project-manage-system.firebaseapp.com",
@@ -275,8 +275,11 @@
                 state.activeTab = tab; 
                 ['ideas', 'mvp', 'market', 'agent'].forEach(t => { 
                     const btn = document.getElementById(`tab-${t}`);
-                    if(t === tab) { btn.className = `tab-btn pb-3 border-b-2 font-medium border-blue-500 text-blue-400`; } 
-                    else { btn.className = `tab-btn pb-3 border-b-2 border-transparent text-gray-400 hover:text-gray-200`; }
+                    if(t === tab) {
+                        btn.className = `tab-btn pb-3 border-b-2 font-medium border-blue-500 text-blue-400`;
+                    } else {
+                        btn.className = `tab-btn pb-3 border-b-2 border-transparent text-gray-400 hover:text-gray-200`;
+                    }
                     document.getElementById(`content-${t}`).className = `p-4 md:p-8 ${t===tab ? 'block' : 'hidden'} space-y-6 max-w-5xl mx-auto w-full`; 
                 }); 
             },
@@ -295,11 +298,14 @@
             }
         };
 
+        let db, auth;
         const initFirebase = async () => {
             try {
                 const app = initializeApp(firebaseConfig); db = getFirestore(app); auth = getAuth(app);
                 const provider = new GoogleAuthProvider();
+                
                 document.getElementById('btn-login').onclick = () => signInWithPopup(auth, provider);
+                
                 onAuthStateChanged(auth, (user) => {
                     if (user && !user.isAnonymous) {
                         state.userId = user.uid;
@@ -309,10 +315,14 @@
                     } else {
                         state.userId = null; state.projects = []; renderProjects();
                         document.getElementById('btn-login').classList.remove('hidden');
-                        DOM.authStatus.innerHTML = `<span class="text-sm text-gray-400">尚未登入</span>`;
+                        DOM.authStatus.innerHTML = '';
                     }
                 });
-            } catch (err) { console.error(err); DOM.authStatus.innerHTML = `<i class="fa-solid fa-xmark text-red-500"></i>`; }
+            } catch (err) { 
+                console.error(err); 
+                DOM.authStatus.innerHTML = `<i class="fa-solid fa-xmark text-red-500"></i> 連線錯誤`; 
+                document.getElementById('btn-login').classList.remove('hidden');
+            }
         };
 
         const listenToProjects = () => {
@@ -350,7 +360,7 @@
             ui.showToast("Webhook 已更新");
         };
 
-        // --- Idea Inbox (便利貼) 邏輯 ---
+        // --- Idea Inbox (便利貼) ---
         const addIdea = async (e) => {
             e.preventDefault(); if (!state.userId || !state.selectedProjectId) return;
             const text = document.getElementById('idea-input').value.trim();
@@ -376,17 +386,10 @@
             ui.switchTab('mvp');
             document.getElementById('mvp-action').value = idea.text;
             document.getElementById('mvp-action').focus();
-            ui.showToast("已轉換為任務草稿！請補齊驗證指標。");
+            ui.showToast("已轉換為草稿！請補齊標籤與指標。");
         };
 
-        // --- MVP 邏輯 (含分組標籤顏色產生器) ---
-        const getGroupColorClass = (str) => {
-            if(!str) return '';
-            const colors = ['bg-purple-900/60 text-purple-300 border-purple-500/30', 'bg-blue-900/60 text-blue-300 border-blue-500/30', 'bg-orange-900/60 text-orange-300 border-orange-500/30', 'bg-pink-900/60 text-pink-300 border-pink-500/30', 'bg-teal-900/60 text-teal-300 border-teal-500/30'];
-            let hash = 0; for (let i = 0; i < str.length; i++) { hash = str.charCodeAt(i) + ((hash << 5) - hash); }
-            return colors[Math.abs(hash) % colors.length];
-        };
-
+        // --- MVP 任務與排序 ---
         const addMvpStep = async (e) => {
             e.preventDefault(); if (!state.userId || !state.selectedProjectId) return;
             const actionText = document.getElementById('mvp-action').value.trim();
@@ -394,26 +397,33 @@
             const groupText = document.getElementById('mvp-group').value.trim();
             if (!actionText) return;
             const p = state.projects.find(x => x.id === state.selectedProjectId);
-            const step = { id: crypto.randomUUID(), action: actionText, metric: metricText, group: groupText, status: 'pending', startDate: document.getElementById('mvp-start').value, endDate: document.getElementById('mvp-end').value, retro: '' };
+            // 賦予預設排序值 (排在最後)
+            const nextOrder = (p.mvpSteps || []).length;
+            const step = { 
+                id: crypto.randomUUID(), action: actionText, metric: metricText, group: groupText,
+                status: 'pending', startDate: document.getElementById('mvp-start').value, endDate: document.getElementById('mvp-end').value, 
+                retro: '', order: nextOrder 
+            };
             await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', p.id), { mvpSteps: [...(p.mvpSteps || []), step] });
             DOM.mvpForm.reset();
         };
 
-        // 任務上下移動排序邏輯
-        window.moveMvpTask = async (pid, sid, direction) => {
-            const p = state.projects.find(x => x.id === pid);
-            if (!p || !p.mvpSteps) return;
-            const steps = [...p.mvpSteps];
-            const index = steps.findIndex(s => s.id === sid);
-            if (index < 0) return;
-            const newIndex = index + direction;
-            if (newIndex < 0 || newIndex >= steps.length) return;
+        window.moveMvp = async (pid, sid, direction) => {
+            const p = state.projects.find(x=>x.id===pid);
+            let steps = [...(p.mvpSteps || [])];
+            // 確保每項都有 order，然後排序
+            steps.forEach((s, i) => { if(s.order === undefined) s.order = i; });
+            steps.sort((a,b) => a.order - b.order);
             
-            // 交換位置
-            const temp = steps[index];
-            steps[index] = steps[newIndex];
-            steps[newIndex] = temp;
+            const idx = steps.findIndex(s => s.id === sid);
+            if (direction === -1 && idx > 0) {
+                [steps[idx], steps[idx-1]] = [steps[idx-1], steps[idx]]; // 陣列位置交換
+            } else if (direction === 1 && idx < steps.length - 1) {
+                [steps[idx], steps[idx+1]] = [steps[idx+1], steps[idx]];
+            } else return; // 到達邊界不動作
             
+            // 重新賦予乾淨的 order 數值
+            steps.forEach((s, i) => s.order = i);
             await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', pid), { mvpSteps: steps });
         };
 
@@ -451,13 +461,15 @@
             try {
                 await fetch(p.webhookUrl, {
                     method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ projectName: p.name, task: step.action, metric: step.metric, status: step.status, learning: step.retro })
+                    body: JSON.stringify({ projectName: p.name, task: step.action, metric: step.metric, group: step.group, status: step.status, learning: step.retro })
                 });
                 ui.showToast("已成功拋送資料！", "success");
             } catch(e) { ui.showToast("Webhook 發送可能失敗", "error"); }
         };
 
+        // --- 渲染畫面 ---
         const renderProjects = () => {
+            if(!state.userId) return;
             const filtered = state.projects.filter(p => state.viewingArchived ? p.archived : !p.archived);
             DOM.projectCount.innerText = filtered.length;
             DOM.projectList.innerHTML = filtered.length ? filtered.map(p => {
@@ -477,7 +489,7 @@
             const p = state.projects.find(x => x.id === state.selectedProjectId); if (!p) return ui.closeDashboard();
             DOM.dashboardTitle.innerText = p.name;
             
-            // 渲染點子牆 (Idea Inbox)
+            // 渲染點子牆
             const ideas = p.ideas || [];
             document.getElementById('idea-list').innerHTML = ideas.length ? ideas.map(idea => `
                 <div class="${idea.color || 'bg-yellow-200'} p-4 rounded-2xl shadow-md text-gray-800 relative group flex flex-col min-h-[120px] transform transition hover:-translate-y-1 hover:shadow-xl">
@@ -490,17 +502,19 @@
             `).join('') : '<div class="col-span-full text-center text-sm text-gray-500 py-10 bg-gray-800/50 rounded-2xl border border-gray-700 border-dashed">點子牆目前空空如也，來點靈感吧！</div>';
 
             // 渲染 MVP
-            const steps = p.mvpSteps || []; const comp = steps.filter(s=> s.status === 'success' || s.completed === true).length; const total = steps.length; const pct = total ? Math.round(comp/total*100) : 0;
+            let steps = [...(p.mvpSteps || [])];
+            steps.forEach((s, i) => { if(s.order === undefined) s.order = i; });
+            steps.sort((a,b) => a.order - b.order); // 依照自訂順序排列
+
+            const comp = steps.filter(s=> s.status === 'success' || s.completed === true).length; const total = steps.length; const pct = total ? Math.round(comp/total*100) : 0;
             document.getElementById('mvp-progress-text').innerText = `${pct}% (${comp}/${total})`; document.getElementById('mvp-progress-bar').style.width = `${pct}%`;
             
-            DOM.mvpList.innerHTML = total ? steps.map((s, index) => {
+            DOM.mvpList.innerHTML = total ? steps.map((s, idx) => {
                 const isSuccess = s.status === 'success' || s.completed === true; const isPivot = s.status === 'pivot';
                 const aText = s.action || s.text || '未命名行動'; const mText = s.metric || '無量化指標';
+                const groupHtml = s.group ? `<span class="bg-purple-900/50 text-purple-300 border border-purple-500/50 px-2 py-0.5 rounded text-[10px] mr-2 shadow-sm font-bold">${s.group}</span>` : '';
                 const dateHtml = (s.startDate || s.endDate) ? `<div class="text-xs text-indigo-300 mt-2 font-medium"><i class="fa-regular fa-calendar-check"></i> ${s.startDate||'未定'} - ${s.endDate||'未定'}</div>` : '';
                 
-                // 標籤群組 Badge
-                const groupBadge = s.group ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold border ${getGroupColorClass(s.group)} ml-2 align-middle inline-block -mt-1">${s.group}</span>` : '';
-
                 let statusUI = '', retroUI = '', webhookUI = '';
                 if(s.retro) retroUI = `<div class="mt-3 text-sm bg-gray-800 p-3 rounded-lg text-gray-300 border-l-4 ${isSuccess?'border-emerald-500':'border-red-500'} shadow-inner"><i class="fa-regular fa-comment-dots text-gray-500 mr-1"></i> ${s.retro}</div>`;
                 if(p.webhookUrl && !isSuccess && !isPivot) webhookUI = `<button onclick="triggerWebhook('${p.id}', '${s.id}')" class="text-xs font-bold bg-blue-900/60 text-blue-300 border border-blue-500/50 hover:bg-blue-600 hover:text-white px-3 py-2 rounded-xl transition ml-3 shadow"><i class="fa-solid fa-robot"></i> Webhook</button>`;
@@ -510,22 +524,14 @@
                 else if (isPivot) statusUI = `<div class="mt-4 flex items-center justify-between"><div class="text-sm font-bold text-red-400 bg-red-900/40 px-3 py-1.5 rounded-lg border border-red-500/50 shadow-sm"><i class="fa-solid fa-rotate-left mr-1"></i> 需軸轉/失敗</div> <div><button onclick="promptMvpStatus('${p.id}', '${s.id}', 'pending')" class="text-xs text-gray-500 hover:text-gray-300 underline font-medium">重設</button>${webhookUI}</div></div>`;
                 else statusUI = `<div class="mt-4 flex gap-3 items-center"><button onclick="promptMvpStatus('${p.id}', '${s.id}', 'success')" class="flex-1 text-sm font-bold bg-gray-800 hover:bg-emerald-900/60 text-gray-300 hover:text-emerald-400 border border-gray-600 hover:border-emerald-500/60 py-2.5 rounded-xl transition shadow"><i class="fa-solid fa-check"></i> 達標</button><button onclick="promptMvpStatus('${p.id}', '${s.id}', 'pivot')" class="flex-1 text-sm font-bold bg-gray-800 hover:bg-red-900/60 text-gray-300 hover:text-red-400 border border-gray-600 hover:border-red-500/60 py-2.5 rounded-xl transition shadow"><i class="fa-solid fa-xmark"></i> 軸轉</button>${webhookUI}</div>`;
 
-                const isFirst = index === 0;
-                const isLast = index === total - 1;
-
-                return `<li class="p-4 md:p-5 rounded-2xl bg-gray-900 border-2 ${isSuccess?'border-emerald-500/40':(isPivot?'border-red-500/40':'border-gray-700')} relative shadow-md transition hover:border-gray-500 flex">
-                    <!-- 排序按鈕區塊 -->
-                    <div class="flex flex-col gap-3 mr-4 justify-center border-r border-gray-700/50 pr-4">
-                        <button onclick="moveMvpTask('${p.id}', '${s.id}', -1)" class="text-gray-500 hover:text-white transition ${isFirst?'opacity-20 cursor-not-allowed':''}" ${isFirst?'disabled':''} title="上移"><i class="fa-solid fa-chevron-up"></i></button>
-                        <button onclick="moveMvpTask('${p.id}', '${s.id}', 1)" class="text-gray-500 hover:text-white transition ${isLast?'opacity-20 cursor-not-allowed':''}" ${isLast?'disabled':''} title="下移"><i class="fa-solid fa-chevron-down"></i></button>
+                return `<li class="p-5 md:p-6 rounded-2xl bg-gray-900 border-2 ${isSuccess?'border-emerald-500/40':(isPivot?'border-red-500/40':'border-gray-700')} relative shadow-md transition hover:border-gray-500">
+                    <div class="absolute top-3 right-4 flex gap-2">
+                        <button onclick="moveMvp('${p.id}', '${s.id}', -1)" class="text-gray-500 hover:text-white p-1 transition ${idx === 0 ? 'opacity-20 cursor-not-allowed' : ''}"><i class="fa-solid fa-arrow-up"></i></button>
+                        <button onclick="moveMvp('${p.id}', '${s.id}', 1)" class="text-gray-500 hover:text-white p-1 transition ${idx === steps.length-1 ? 'opacity-20 cursor-not-allowed' : ''}"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button onclick="deleteMvp('${p.id}', '${s.id}')" class="text-gray-600 hover:text-red-500 p-1 ml-2 transition"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
-                    <!-- 內容區塊 -->
-                    <div class="flex-1 min-w-0">
-                        <button onclick="deleteMvp('${p.id}', '${s.id}')" class="absolute top-3 right-4 text-gray-600 hover:text-red-500 p-2 transition"><i class="fa-solid fa-trash-can text-lg"></i></button>
-                        <div class="pr-10"><div class="text-base ${isSuccess?'text-gray-500 line-through':'text-gray-100'} font-bold mb-1">🎯 行動：${aText} ${groupBadge}</div><div class="text-sm font-medium text-indigo-300/90">📊 指標：${mText}</div></div>
-                        ${dateHtml} ${retroUI} ${statusUI}
-                    </div>
-                </li>`;
+                    <div class="pr-20"><div class="text-base ${isSuccess?'text-gray-500 line-through':'text-gray-100'} font-bold mb-1">${groupHtml}🎯 行動：${aText}</div><div class="text-sm font-medium text-indigo-300/90 mt-2">📊 指標：${mText}</div></div>
+                    ${dateHtml} ${retroUI} ${statusUI}</li>`;
             }).join('') : '<div class="text-sm text-gray-500 text-center py-10 bg-gray-800/50 rounded-2xl border border-gray-700 border-dashed">尚未建立 MVP 驗證假說！</div>';
             
             ['audience', 'competitors', 'advantages'].forEach(k => { const el = document.getElementById(`view-${k==='audience'?'ta':(k==='competitors'?'comp':'adv')}`); if(el) el.innerText = p[k] || '尚未設定'; });
@@ -566,6 +572,50 @@
             state.chartInstance.update();
         };
 
+        const isDateInRange = (d, s, e) => { if (!s && !e) return false; const target = new Date(d).getTime(), start = s ? new Date(s).getTime() : 0, end = e ? new Date(e).getTime() : Infinity; return target >= start && target <= end; };
+        window.changeMonth = (dir) => { state.calendarDate.setMonth(state.calendarDate.getMonth() + dir); window.renderCalendar(); };
+        window.selectDate = (dateStr) => { state.selectedDateStr = dateStr; window.renderCalendar(); renderDayTasks(dateStr); };
+
+        const renderDayTasks = (dateStr) => {
+            document.getElementById('selected-date-title').innerHTML = `<i class="fa-solid fa-list-check"></i> ${dateStr} 任務清單`;
+            let html = '', count = 0;
+            state.projects.forEach(p => {
+                const tasks = (p.mvpSteps||[]).filter(s => s.startDate === dateStr || s.endDate === dateStr || isDateInRange(dateStr, s.startDate, s.endDate));
+                if (tasks.length > 0) {
+                    html += `<div class="mb-5 bg-gray-800/50 p-4 rounded-2xl border border-gray-700 shadow-sm"><div class="text-sm font-bold text-blue-400 mb-3"><i class="fa-solid fa-folder-open text-blue-500 mr-1"></i> ${p.name}</div><div class="space-y-4">`;
+                    tasks.forEach(t => {
+                        const isSuccess = t.status === 'success' || t.completed === true; const isPivot = t.status === 'pivot';
+                        const aText = t.action || t.text || '未命名行動'; const mText = t.metric || '無量化指標';
+                        const groupHtml = t.group ? `<span class="bg-purple-900/50 text-purple-300 border border-purple-500/50 px-2 py-0.5 rounded text-[10px] mr-2 shadow-sm font-bold">${t.group}</span>` : '';
+                        let statusUI = '';
+                        if (isSuccess) statusUI = `<div class="mt-3 text-xs font-bold text-emerald-400 bg-emerald-900/40 px-3 py-1.5 rounded-lg inline-block border border-emerald-500/40"><i class="fa-solid fa-check"></i> 驗證達標</div> <button onclick="updateMvpStatusDB('${p.id}', '${t.id}', 'pending'); setTimeout(()=>renderDayTasks('${dateStr}'), 300)" class="text-[11px] font-medium text-gray-500 ml-3 hover:text-gray-300 underline">重設</button>`;
+                        else if (isPivot) statusUI = `<div class="mt-3 text-xs font-bold text-red-400 bg-red-900/40 px-3 py-1.5 rounded-lg inline-block border border-red-500/40"><i class="fa-solid fa-rotate-left"></i> 需軸轉/失敗</div> <button onclick="updateMvpStatusDB('${p.id}', '${t.id}', 'pending'); setTimeout(()=>renderDayTasks('${dateStr}'), 300)" class="text-[11px] font-medium text-gray-500 ml-3 hover:text-gray-300 underline">重設</button>`;
+                        else statusUI = `<div class="mt-3 flex gap-3"><button onclick="updateMvpStatusDB('${p.id}', '${t.id}', 'success'); setTimeout(()=>renderDayTasks('${dateStr}'), 300)" class="text-xs font-bold bg-gray-800 hover:bg-emerald-900/60 text-gray-300 hover:text-emerald-400 border border-gray-600 hover:border-emerald-500/60 px-3 py-2 rounded-xl transition shadow-sm"><i class="fa-solid fa-check"></i> 達標</button><button onclick="updateMvpStatusDB('${p.id}', '${t.id}', 'pivot'); setTimeout(()=>renderDayTasks('${dateStr}'), 300)" class="text-xs font-bold bg-gray-800 hover:bg-red-900/60 text-gray-300 hover:text-red-400 border border-gray-600 hover:border-red-500/60 px-3 py-2 rounded-xl transition shadow-sm"><i class="fa-solid fa-xmark"></i> 軸轉</button></div>`;
+                        html += `<div class="bg-gray-900 p-4 rounded-xl border-2 ${isSuccess?'border-emerald-500/40':(isPivot?'border-red-500/40':'border-gray-700')}"><div class="text-sm ${isSuccess?'text-gray-500 line-through':'text-gray-100'} font-bold mb-1">${groupHtml}🎯 ${aText}</div><div class="text-xs font-medium text-indigo-300 mt-2">📊 ${mText}</div>${statusUI}</div>`;
+                    });
+                    html += `</div></div>`; count++;
+                }
+            });
+            document.getElementById('day-tasks-list').innerHTML = count ? html : `<div class="text-gray-500 text-sm text-center py-10 bg-gray-800/30 rounded-2xl border border-gray-700 border-dashed">這一天沒有安排驗證項目</div>`;
+        };
+
+        window.renderCalendar = () => {
+            const y = state.calendarDate.getFullYear(), m = state.calendarDate.getMonth();
+            document.getElementById('calendar-month-year').innerText = `${y} 年 ${m + 1} 月`;
+            let html = ''; for (let i = 0; i < new Date(y, m, 1).getDay(); i++) html += `<div></div>`;
+            const todayStr = new Date().toISOString().split('T')[0];
+            for (let i = 1; i <= new Date(y, m + 1, 0).getDate(); i++) {
+                const dateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const hasTasks = state.projects.some(p => (p.mvpSteps||[]).some(s => isDateInRange(dateStr, s.startDate, s.endDate)));
+                let cls = `flex flex-col items-center justify-center p-3 rounded-2xl cursor-pointer transition relative border-2 ${dateStr === state.selectedDateStr ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg' : dateStr === todayStr ? 'bg-gray-800 border-blue-500 text-blue-400' : 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 hover:border-gray-500'}`;
+                html += `<div class="${cls}" onclick="selectDate('${dateStr}')"><span class="text-sm font-bold z-10">${i}</span>${hasTasks ? '<div class="absolute bottom-1.5 w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_5px_rgba(52,211,153,0.8)]"></div>' : ''}</div>`;
+            }
+            document.getElementById('calendar-grid').innerHTML = html;
+        };
+
+        document.getElementById('project-form').addEventListener('submit', saveProject);
+        DOM.ideaForm.addEventListener('submit', addIdea);
+        document.getElementById('mvp-form').addEventListener('submit', addMvpStep);
         window.addEventListener('resize', () => { if(state.chartInstance) state.chartInstance.resize() });
         window.onload = () => { initChart(); initFirebase(); };
     </script>
