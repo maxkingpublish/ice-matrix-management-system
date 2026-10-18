@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ICE 專案決策系統 v2.91</title>
+    <title>ICE 專案決策系統 v2.92</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -69,8 +69,8 @@
                 <canvas id="iceChart"></canvas>
             </div>
 
-            <!-- Dashboard Panel -->
-            <div id="dashboard-panel" class="absolute bottom-0 left-0 right-0 glass-panel border-t border-gray-700 transform translate-y-full transition-transform duration-300 flex flex-col h-[90dvh] md:h-[75dvh] shadow-[0_-20px_50px_rgba(0,0,0,0.8)] z-30 rounded-t-3xl md:rounded-none">
+            <!-- Dashboard Panel (修復：手機版改用 fixed 且高度設定 85dvh，確保頂部表頭不被吃掉) -->
+            <div id="dashboard-panel" class="fixed md:absolute bottom-0 left-0 right-0 glass-panel border-t border-gray-700 transform translate-y-full transition-transform duration-300 flex flex-col h-[85dvh] md:h-[80%] shadow-[0_-20px_50px_rgba(0,0,0,0.8)] z-40 md:z-20 rounded-t-3xl md:rounded-none">
                 
                 <div class="w-full flex justify-center pt-3 pb-1 md:hidden shrink-0"><div class="w-12 h-1.5 bg-gray-600 rounded-full"></div></div>
 
@@ -221,7 +221,7 @@
         </div>
     </div>
 
-    <!-- Project Modal (修復過高捲動問題) -->
+    <!-- Project Modal -->
     <div id="project-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-[60] opacity-0 transition-opacity p-4">
         <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-2xl transform scale-95 transition-transform duration-300 relative flex flex-col max-h-[90dvh]">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-t-2xl"></div>
@@ -239,7 +239,7 @@
                             <input type="text" id="p-name" required placeholder="例如：自動化 IG 貼文產生器" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition shadow-inner">
                         </div>
                         
-                        <!-- V2.9 願景區塊 -->
+                        <!-- 願景區塊 -->
                         <div class="bg-yellow-900/10 border border-yellow-700/30 p-4 rounded-xl">
                             <label class="block text-sm font-medium text-yellow-500 mb-2"><i class="fa-solid fa-eye"></i> 專案願景與 AI 脈絡 (Vision & Context)</label>
                             <p class="text-xs text-gray-400 mb-3 leading-relaxed">請詳細描述這個專案的最終目的、想解決的核心痛點、預期達到的成果。這將作為未來 AI Agent 拆解任務的「最高指導原則」。</p>
