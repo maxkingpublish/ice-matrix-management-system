@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ICE 專案決策系統 v2.92</title>
+    <title>ICE 專案決策系統 v2.93</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -64,13 +64,14 @@
             </div>
         </aside>
 
-        <section class="flex-1 flex flex-col h-[60%] md:h-full relative bg-gray-900 shadow-inner z-0">
+        <!-- V2.93 修正點：將 section 的 z-0 改為 z-20，確保裡面的戰情面板不會被左側專案清單蓋住 -->
+        <section class="flex-1 flex flex-col h-[60%] md:h-full relative bg-gray-900 shadow-inner z-20">
             <div class="flex-1 relative p-4 md:p-6 w-full h-full flex items-center justify-center">
                 <canvas id="iceChart"></canvas>
             </div>
 
-            <!-- Dashboard Panel (修復：手機版改用 fixed 且高度設定 85dvh，確保頂部表頭不被吃掉) -->
-            <div id="dashboard-panel" class="fixed md:absolute bottom-0 left-0 right-0 glass-panel border-t border-gray-700 transform translate-y-full transition-transform duration-300 flex flex-col h-[85dvh] md:h-[80%] shadow-[0_-20px_50px_rgba(0,0,0,0.8)] z-40 md:z-20 rounded-t-3xl md:rounded-none">
+            <!-- Dashboard Panel -->
+            <div id="dashboard-panel" class="fixed md:absolute bottom-0 left-0 right-0 glass-panel border-t border-gray-700 transform translate-y-full transition-transform duration-300 flex flex-col h-[85dvh] md:h-[80%] shadow-[0_-20px_50px_rgba(0,0,0,0.9)] z-40 md:z-30 rounded-t-3xl md:rounded-none">
                 
                 <div class="w-full flex justify-center pt-3 pb-1 md:hidden shrink-0"><div class="w-12 h-1.5 bg-gray-600 rounded-full"></div></div>
 
@@ -127,12 +128,10 @@
 
                     <!-- Market Tab -->
                     <div id="content-market" class="p-4 md:p-8 hidden space-y-5 text-sm max-w-4xl mx-auto w-full pb-20">
-                        <!-- 願景區塊 -->
                         <div class="bg-indigo-900/20 p-5 md:p-6 rounded-2xl border border-indigo-500/30 shadow-md shrink-0">
                             <h4 class="text-indigo-300 font-bold mb-3 text-base"><i class="fa-solid fa-star text-yellow-400"></i> 專案願景與 AI 脈絡 (北極星)</h4>
                             <p id="view-vision" class="text-gray-300 whitespace-pre-wrap leading-relaxed text-sm"></p>
                         </div>
-                        
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 shrink-0">
                             <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700"><h4 class="text-gray-300 font-bold mb-3 text-base"><i class="fa-solid fa-users text-blue-400"></i> 目標受眾</h4><p id="view-ta" class="text-gray-400 whitespace-pre-wrap leading-relaxed"></p></div>
                             <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700"><h4 class="text-gray-300 font-bold mb-3 text-base"><i class="fa-solid fa-chess-knight text-red-400"></i> 競爭對手</h4><p id="view-comp" class="text-gray-400 whitespace-pre-wrap leading-relaxed"></p></div>
