@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ICE 專案決策系統 v2.7</title>
+    <title>ICE 專案決策系統 v2.8</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -48,7 +48,7 @@
 
     <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
         <aside class="w-full md:w-1/3 lg:w-1/4 glass-panel border-r border-gray-800 flex flex-col z-10 h-[40%] md:h-full shrink-0">
-            <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+            <div class="p-4 border-b border-gray-700 flex justify-between items-center shrink-0">
                 <div class="flex items-center gap-3">
                     <h2 class="font-semibold text-gray-200">專案清單</h2>
                     <button onclick="ui.toggleArchiveView()" id="btn-toggle-archive" class="text-xs px-2.5 py-1.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-400 transition" title="切換顯示封存專案">
@@ -57,7 +57,7 @@
                 </div>
                 <span id="project-count" class="bg-gray-700 text-xs px-2.5 py-1 rounded-full text-gray-300">0</span>
             </div>
-            <div id="project-list" class="flex-1 overflow-y-auto p-4 space-y-4">
+            <div id="project-list" class="flex-1 overflow-y-auto p-4 space-y-4 pb-12">
                 <div class="text-center text-gray-500 mt-10"><i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i><p>載入中...</p></div>
             </div>
         </aside>
@@ -70,9 +70,9 @@
             <!-- Dashboard Panel -->
             <div id="dashboard-panel" class="fixed md:absolute bottom-0 left-0 right-0 glass-panel border-t border-gray-700 transform translate-y-full transition-transform duration-300 flex flex-col h-[85vh] md:h-[70%] shadow-[0_-20px_50px_rgba(0,0,0,0.7)] z-40 md:z-20 rounded-t-3xl md:rounded-none">
                 
-                <div class="w-full flex justify-center pt-3 pb-1 md:hidden"><div class="w-12 h-1.5 bg-gray-600 rounded-full"></div></div>
+                <div class="w-full flex justify-center pt-3 pb-1 md:hidden shrink-0"><div class="w-12 h-1.5 bg-gray-600 rounded-full"></div></div>
 
-                <div class="border-b border-gray-700 bg-gray-800/80 px-6 pt-4 flex justify-between items-end">
+                <div class="border-b border-gray-700 bg-gray-800/80 px-6 pt-4 flex justify-between items-end shrink-0">
                     <div class="flex-1 overflow-hidden">
                         <h3 id="dashboard-title" class="text-xl font-bold text-blue-400 mb-4 truncate">專案名稱</h3>
                         <div class="flex gap-6 text-sm overflow-x-auto whitespace-nowrap pb-1 no-scrollbar">
@@ -85,22 +85,22 @@
                     <button onclick="ui.closeDashboard()" class="text-gray-400 hover:text-white p-3 mb-2 rounded-full hover:bg-gray-700 transition shrink-0 ml-4"><i class="fa-solid fa-chevron-down text-xl"></i></button>
                 </div>
                 
-                <div class="flex-1 overflow-y-auto bg-gray-900/50">
+                <div class="flex-1 overflow-y-auto bg-gray-900/50 relative">
                     
-                    <!-- Ideas Tab -->
+                    <!-- Ideas Tab (便利貼牆) -->
                     <div id="content-ideas" class="p-4 md:p-8 hidden space-y-6 max-w-5xl mx-auto w-full">
                         <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700 shadow-lg">
                             <h4 class="text-base font-bold text-yellow-400 mb-2"><i class="fa-solid fa-inbox"></i> 點子收件匣 (Brain Dump)</h4>
-                            <p class="text-sm text-gray-400 mb-4">先把想到的功能、問題、靈感倒出來。等想清楚後，再一鍵轉換成嚴謹的 MVP 任務。</p>
+                            <p class="text-sm text-gray-400 mb-4">先把想到的功能、問題、靈感全部倒出來，清空大腦負擔。等想清楚後，再一鍵轉換成嚴謹的 MVP 任務。</p>
                             <form id="idea-form" class="flex gap-3">
                                 <input type="text" id="idea-input" required placeholder="例如：想增加 LINE 登入功能..." class="flex-1 bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-yellow-500 transition">
                                 <button type="submit" class="bg-yellow-600 hover:bg-yellow-500 text-white px-6 py-3 rounded-xl text-sm transition font-medium whitespace-nowrap shadow-lg shadow-yellow-600/20">貼上靈感</button>
                             </form>
                         </div>
-                        <div id="idea-list" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-10"></div>
+                        <div id="idea-list" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-12"></div>
                     </div>
 
-                    <!-- MVP Tab (加入群組與排序) -->
+                    <!-- MVP Tab -->
                     <div id="content-mvp" class="p-4 md:p-8 block max-w-4xl mx-auto w-full">
                         <div class="mb-8 bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-700 shadow-xl">
                             <h4 class="text-base font-bold text-emerald-400 mb-2"><i class="fa-solid fa-flask"></i> 建立 MVP 驗證假說</h4>
@@ -108,15 +108,11 @@
                             <form id="mvp-form" class="flex flex-col gap-4">
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div class="md:col-span-2"><label class="block text-xs text-gray-400 mb-1.5 font-medium">1. 採取行動 (Action)</label><input type="text" id="mvp-action" required placeholder="例：在落地頁加入 Email 訂閱框" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 outline-none transition"></div>
-                                    <div class="md:col-span-1"><label class="block text-xs text-purple-400 mb-1.5 font-medium">群組標籤 (選填)</label><input type="text" id="mvp-group" placeholder="例：階段一、後端" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-2.5 text-sm text-white focus:border-purple-500 outline-none transition"></div>
+                                    <div class="md:col-span-1"><label class="block text-xs text-purple-400 mb-1.5 font-medium">群組標籤 (選填)</label><input type="text" id="mvp-group" placeholder="例：階段一、後端開發" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-2.5 text-sm text-white focus:border-purple-500 outline-none transition"></div>
                                 </div>
                                 <div><label class="block text-xs text-gray-400 mb-1.5 font-medium">2. 驗證指標 (Metric)</label><input type="text" id="mvp-metric" required placeholder="例：一週內獲得 50 個訂閱" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 outline-none transition"></div>
                                 <div class="flex gap-3 items-center flex-wrap bg-gray-900/50 p-3 rounded-xl border border-gray-700/50 mt-2">
-                                    <span class="text-sm text-gray-400 ml-1"><i class="fa-regular fa-calendar"></i> 觀察期:</span>
-                                    <input type="date" id="mvp-start" class="bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 text-sm text-gray-300 outline-none focus:border-blue-500">
-                                    <span class="text-sm text-gray-500">至</span>
-                                    <input type="date" id="mvp-end" class="bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 text-sm text-gray-300 outline-none focus:border-blue-500">
-                                    <button type="submit" class="ml-auto bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl text-sm transition font-semibold shadow-lg shadow-blue-600/30">加入實驗</button>
+                                    <button type="submit" class="w-full md:w-auto md:ml-auto bg-blue-600 hover:bg-blue-500 text-white px-8 py-2.5 rounded-xl text-sm transition font-semibold shadow-lg shadow-blue-600/30">加入實驗清單</button>
                                 </div>
                             </form>
                         </div>
@@ -124,11 +120,11 @@
                             <div class="flex justify-between text-sm text-gray-300 mb-2 font-medium"><span>假說驗證進度</span><span id="mvp-progress-text">0%</span></div>
                             <div class="w-full bg-gray-700 rounded-full h-2.5 overflow-hidden"><div id="mvp-progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2.5 transition-all duration-500" style="width: 0%"></div></div>
                         </div>
-                        <ul id="mvp-list" class="space-y-4 pb-10"></ul>
+                        <ul id="mvp-list" class="space-y-4 pb-20"></ul>
                     </div>
 
                     <!-- Market Tab -->
-                    <div id="content-market" class="p-4 md:p-8 hidden space-y-5 text-sm max-w-4xl mx-auto w-full">
+                    <div id="content-market" class="p-4 md:p-8 hidden space-y-5 text-sm max-w-4xl mx-auto w-full pb-12">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700"><h4 class="text-gray-300 font-bold mb-3 text-base"><i class="fa-solid fa-users text-blue-400"></i> 目標受眾</h4><p id="view-ta" class="text-gray-400 whitespace-pre-wrap leading-relaxed"></p></div>
                             <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700"><h4 class="text-gray-300 font-bold mb-3 text-base"><i class="fa-solid fa-chess-knight text-red-400"></i> 競爭對手</h4><p id="view-comp" class="text-gray-400 whitespace-pre-wrap leading-relaxed"></p></div>
@@ -137,10 +133,10 @@
                     </div>
 
                     <!-- Agent Tab -->
-                    <div id="content-agent" class="p-4 md:p-8 hidden space-y-5 max-w-4xl mx-auto w-full">
+                    <div id="content-agent" class="p-4 md:p-8 hidden space-y-5 max-w-4xl mx-auto w-full pb-12">
                         <div class="bg-blue-900/20 border border-blue-500/30 p-5 rounded-2xl">
                             <h4 class="text-blue-400 font-bold mb-3 text-base"><i class="fa-solid fa-satellite-dish"></i> Webhook 自動化綁定</h4>
-                            <p class="text-sm text-gray-300 mb-3 leading-relaxed">如果您有使用 n8n 或 Make，請將 Webhook URL 貼在這裡。未來在 MVP 任務中，點擊機器人按鈕即可將該任務的資料 (含反思心得) POST 送出，觸發自動化腳本！</p>
+                            <p class="text-sm text-gray-300 mb-3 leading-relaxed">如果您有使用 n8n 或 Make，請將 Webhook URL 貼在這裡。未來在 MVP 任務的規劃面板中，點擊機器人按鈕即可將該任務的資料(含專屬 Prompt) POST 送出，觸發自動化腳本！</p>
                         </div>
                         <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700">
                             <h4 class="text-gray-300 font-bold mb-3 text-sm">設定您的 Webhook URL</h4>
@@ -154,6 +150,68 @@
             </div>
         </section>
     </main>
+
+    <!-- Task Detail Modal (V2.8 新增：任務專屬規劃面板) -->
+    <div id="task-detail-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-[60] opacity-0 transition-opacity p-4">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-3xl transform scale-95 transition-transform duration-300 relative flex flex-col max-h-[95vh]">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-t-2xl"></div>
+            
+            <div class="p-5 md:p-6 border-b border-gray-700 flex justify-between items-start shrink-0">
+                <div class="flex-1 pr-4">
+                    <div id="task-modal-group" class="mb-2"></div>
+                    <h2 id="task-modal-title" class="text-lg md:text-xl font-bold text-white leading-tight">任務名稱</h2>
+                    <div id="task-modal-metric" class="text-sm text-indigo-300 mt-1">指標：...</div>
+                </div>
+                <button type="button" onclick="ui.closeTaskDetailModal()" class="text-gray-400 hover:text-white p-2 -mr-2 transition shrink-0"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            
+            <div class="p-5 md:p-6 overflow-y-auto flex-1 space-y-6">
+                <input type="hidden" id="task-modal-pid">
+                <input type="hidden" id="task-modal-sid">
+                
+                <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-gray-900/50 p-4 rounded-xl border border-gray-700">
+                        <h4 class="text-sm font-semibold text-gray-300 mb-3"><i class="fa-regular fa-calendar-check text-blue-400"></i> 排程設定</h4>
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="task-modal-start" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-300 outline-none focus:border-blue-500">
+                            <span class="text-gray-500">至</span>
+                            <input type="date" id="task-modal-end" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-300 outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+                    <div class="bg-gray-900/50 p-4 rounded-xl border border-gray-700">
+                        <h4 class="text-sm font-semibold text-gray-300 mb-3"><i class="fa-solid fa-toggle-on text-emerald-400"></i> 任務狀態</h4>
+                        <div class="flex gap-2">
+                            <button onclick="updateTaskStatusFromModal('success')" id="btn-status-success" class="flex-1 py-2 text-sm font-bold rounded-lg border transition">達標</button>
+                            <button onclick="updateTaskStatusFromModal('pivot')" id="btn-status-pivot" class="flex-1 py-2 text-sm font-bold rounded-lg border transition">軸轉/失敗</button>
+                            <button onclick="updateTaskStatusFromModal('pending')" id="btn-status-pending" class="flex-1 py-2 text-sm font-bold rounded-lg border transition">重設為未執行</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="space-y-4">
+                    <div>
+                        <h4 class="text-sm font-semibold text-yellow-400 mb-2"><i class="fa-solid fa-pen-to-square"></i> 執行筆記與參考資料</h4>
+                        <p class="text-xs text-gray-500 mb-2">可貼上 Google 文件連結、心得紀錄、或是執行過程中的發現。</p>
+                        <textarea id="task-modal-notes" rows="4" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-yellow-500 transition shadow-inner" placeholder="在這裡寫下筆記..."></textarea>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between items-end mb-2">
+                            <h4 class="text-sm font-semibold text-purple-400"><i class="fa-solid fa-robot"></i> 專屬 Agent Prompt (AI 提示詞)</h4>
+                            <button onclick="triggerWebhookFromModal()" class="text-xs font-bold bg-blue-900/60 text-blue-300 border border-blue-500/50 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg transition shadow"><i class="fa-solid fa-paper-plane"></i> 拋送 Webhook</button>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-2">專為這個任務設計的 AI 提示詞。未來可供 Gemini 讀取，或透過 Webhook 傳給 n8n。</p>
+                        <textarea id="task-modal-prompt" rows="3" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-purple-500 transition shadow-inner" placeholder="例如：請根據上述筆記的連結，幫我產出一份給工程師看的規格書..."></textarea>
+                    </div>
+                </section>
+            </div>
+            
+            <div class="p-5 md:p-6 border-t border-gray-700 flex gap-4 shrink-0 bg-gray-800 rounded-b-2xl">
+                <button type="button" onclick="ui.closeTaskDetailModal()" class="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl transition text-sm text-white font-medium">關閉</button>
+                <button type="button" onclick="saveTaskDetails()" class="flex-1 px-4 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition text-sm font-bold shadow-lg shadow-emerald-600/30">儲存所有設定</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Project Modal -->
     <div id="project-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-50 opacity-0 transition-opacity p-4">
@@ -192,24 +250,39 @@
         </div>
     </div>
 
-    <!-- Retrospective Modal -->
-    <div id="retro-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-[60] opacity-0 transition-opacity p-4">
-        <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-sm transform scale-95 transition-transform duration-300 relative flex flex-col p-6">
-            <h3 class="text-xl font-bold mb-2 text-white" id="retro-title">紀錄反思與心得</h3>
-            <p class="text-sm text-gray-400 mb-5">這個實驗結束了，留下一句話給未來的自己吧！（選填）</p>
-            <input type="hidden" id="retro-pid"><input type="hidden" id="retro-sid"><input type="hidden" id="retro-status">
-            <textarea id="retro-input" rows="4" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 mb-5 shadow-inner" placeholder="例如：受眾對影片的反應比圖文好很多..."></textarea>
-            <div class="flex gap-3">
-                <button onclick="ui.closeRetroModal()" class="flex-1 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 rounded-xl transition text-sm text-white font-medium">跳過</button>
-                <button onclick="saveRetro()" class="flex-1 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition text-sm font-bold shadow-lg shadow-emerald-600/30">儲存心得</button>
+    <!-- Calendar Modal -->
+    <div id="calendar-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity p-4">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] md:h-[80vh] transform scale-95 transition-transform duration-300 relative flex flex-col overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+            <div class="p-5 border-b border-gray-700 flex justify-between items-center shrink-0">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2"><i class="fa-regular fa-calendar-days text-indigo-400"></i> 任務日曆</h2>
+                <button type="button" onclick="ui.closeCalendarModal()" class="text-gray-400 hover:text-white p-2 transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="flex-1 flex flex-col md:flex-row overflow-hidden bg-gray-900/50">
+                <!-- 手機版這裡加入了 overflow-y-auto 確保網格可以獨立捲動 -->
+                <div class="w-full md:w-3/5 p-4 md:p-6 border-b md:border-b-0 md:border-r border-gray-700 flex flex-col overflow-y-auto md:overflow-visible h-[50%] md:h-auto shrink-0">
+                    <div class="flex justify-between items-center mb-6 shrink-0">
+                        <button onclick="changeMonth(-1)" class="text-gray-400 hover:text-white px-3 py-1.5 bg-gray-800 rounded-lg border border-gray-700 transition"><i class="fa-solid fa-chevron-left"></i></button>
+                        <h3 id="calendar-month-year" class="font-bold text-lg text-gray-200"></h3>
+                        <button onclick="changeMonth(1)" class="text-gray-400 hover:text-white px-3 py-1.5 bg-gray-800 rounded-lg border border-gray-700 transition"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 text-center text-sm font-bold text-gray-500 mb-3 shrink-0">
+                        <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-2 flex-1 auto-rows-fr min-h-[250px]"></div>
+                </div>
+                <!-- 任務清單區塊 -->
+                <div class="w-full md:w-2/5 p-5 md:p-6 flex flex-col overflow-y-auto relative h-[50%] md:h-auto bg-gray-900">
+                    <h4 id="selected-date-title" class="font-bold text-indigo-400 mb-5 pb-3 border-b border-gray-700 text-lg sticky top-0 bg-gray-900/95 backdrop-blur z-10 pt-1">選擇日期</h4>
+                    <div id="day-tasks-list" class="space-y-4 pb-12"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Calendar Modal & Confirm Modal -->
-    <div id="calendar-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity p-4"><div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-4xl h-[90vh] md:h-[80vh] transform scale-95 transition-transform duration-300 relative flex flex-col overflow-hidden"><div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500"></div><div class="p-5 border-b border-gray-700 flex justify-between items-center shrink-0"><h2 class="text-xl font-bold text-white flex items-center gap-2"><i class="fa-regular fa-calendar-days text-indigo-400"></i> 任務日曆</h2><button type="button" onclick="ui.closeCalendarModal()" class="text-gray-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-xl"></i></button></div><div class="flex-1 flex flex-col md:flex-row overflow-hidden bg-gray-900/50"><div class="w-full md:w-3/5 p-4 md:p-6 border-b md:border-b-0 md:border-r border-gray-700 flex flex-col h-1/2 md:h-auto"><div class="flex justify-between items-center mb-6"><button onclick="changeMonth(-1)" class="text-gray-400 hover:text-white px-3 py-1.5 bg-gray-800 rounded-lg border border-gray-700 transition"><i class="fa-solid fa-chevron-left"></i></button><h3 id="calendar-month-year" class="font-bold text-lg text-gray-200"></h3><button onclick="changeMonth(1)" class="text-gray-400 hover:text-white px-3 py-1.5 bg-gray-800 rounded-lg border border-gray-700 transition"><i class="fa-solid fa-chevron-right"></i></button></div><div class="grid grid-cols-7 gap-1 text-center text-sm font-bold text-gray-500 mb-3"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div><div id="calendar-grid" class="grid grid-cols-7 gap-2 flex-1 auto-rows-fr"></div></div><div class="w-full md:w-2/5 p-5 md:p-6 flex flex-col overflow-y-auto relative h-1/2 md:h-auto"><h4 id="selected-date-title" class="font-bold text-indigo-400 mb-5 pb-3 border-b border-gray-700 text-lg sticky top-0 bg-gray-900/90 backdrop-blur z-10 pt-1">選擇日期</h4><div id="day-tasks-list" class="space-y-4 pb-8"></div></div></div></div></div>
-    <div id="confirm-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity p-4"><div class="bg-gray-800 border border-gray-700 rounded-2xl p-8 max-w-sm w-full transform scale-95 transition-transform duration-300 text-center"><h3 class="text-xl font-bold mb-8 text-white">確定操作？</h3><div class="flex gap-4"><button onclick="ui.closeConfirmModal()" class="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl transition text-sm text-white font-medium">取消</button><button id="confirm-btn" class="flex-1 px-4 py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl transition text-sm font-bold shadow-lg shadow-red-600/30">確認</button></div></div></div>
-    <div id="toast-container" class="fixed bottom-6 right-6 z-[70] flex flex-col gap-3 pointer-events-none"></div>
+    <!-- Confirm Modal & Toasts -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-[70] opacity-0 transition-opacity p-4"><div class="bg-gray-800 border border-gray-700 rounded-2xl p-8 max-w-sm w-full transform scale-95 transition-transform duration-300 text-center"><h3 class="text-xl font-bold mb-8 text-white">確定操作？</h3><div class="flex gap-4"><button onclick="ui.closeConfirmModal()" class="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl transition text-sm text-white font-medium">取消</button><button id="confirm-btn" class="flex-1 px-4 py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl transition text-sm font-bold shadow-lg shadow-red-600/30">確認</button></div></div></div>
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[80] flex flex-col gap-3 pointer-events-none"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -217,7 +290,7 @@
         import { getFirestore, doc, setDoc, deleteDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // =========================================================================
-        // Firebase Config (你的金鑰)
+        // Firebase Config
         // =========================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyDCYNYBRjcbYBCJ5NjpcUrk5JfuInJ1gKg",
@@ -229,13 +302,14 @@
         };
 
         const state = { projects: [], selectedProjectId: null, userId: null, appId: 'ice-matrix-app', chartInstance: null, activeTab: 'ideas', calendarDate: new Date(), selectedDateStr: null, viewingArchived: false };
+        let unsubscribeProjects = null; // 用來清除舊監聽的變數
 
         const DOM = {
             projectList: document.getElementById('project-list'), projectCount: document.getElementById('project-count'),
             authStatus: document.getElementById('auth-status'), dashboardPanel: document.getElementById('dashboard-panel'),
             dashboardTitle: document.getElementById('dashboard-title'), mvpList: document.getElementById('mvp-list'),
             mvpForm: document.getElementById('mvp-form'), projectModal: document.getElementById('project-modal'),
-            confirmModal: document.getElementById('confirm-modal'), retroModal: document.getElementById('retro-modal'),
+            confirmModal: document.getElementById('confirm-modal'), taskDetailModal: document.getElementById('task-detail-modal'),
             ideaForm: document.getElementById('idea-form')
         };
 
@@ -275,26 +349,47 @@
                 state.activeTab = tab; 
                 ['ideas', 'mvp', 'market', 'agent'].forEach(t => { 
                     const btn = document.getElementById(`tab-${t}`);
-                    if(t === tab) {
-                        btn.className = `tab-btn pb-3 border-b-2 font-medium border-blue-500 text-blue-400`;
-                    } else {
-                        btn.className = `tab-btn pb-3 border-b-2 border-transparent text-gray-400 hover:text-gray-200`;
-                    }
-                    document.getElementById(`content-${t}`).className = `p-4 md:p-8 ${t===tab ? 'block' : 'hidden'} space-y-6 max-w-5xl mx-auto w-full`; 
+                    if(t === tab) { btn.className = `tab-btn pb-3 border-b-2 font-medium border-blue-500 text-blue-400`; } 
+                    else { btn.className = `tab-btn pb-3 border-b-2 border-transparent text-gray-400 hover:text-gray-200`; }
+                    document.getElementById(`content-${t}`).className = `p-4 md:p-8 ${t===tab ? 'block' : 'hidden'} space-y-6 max-w-5xl mx-auto w-full pb-12`; 
                 }); 
             },
-            openRetroModal: (pid, sid, status) => {
-                document.getElementById('retro-pid').value = pid; document.getElementById('retro-sid').value = sid; document.getElementById('retro-status').value = status;
-                document.getElementById('retro-input').value = '';
-                document.getElementById('retro-title').innerHTML = status === 'success' ? '<i class="fa-solid fa-trophy text-yellow-400"></i> 達標反思' : '<i class="fa-solid fa-rotate-left text-red-400"></i> 軸轉紀錄';
-                const m = DOM.retroModal; m.classList.remove('hidden'); m.classList.add('flex'); requestAnimationFrame(()=> {m.classList.remove('opacity-0'); m.querySelector('div').classList.remove('scale-95');});
-            },
-            closeRetroModal: () => { const m = DOM.retroModal; m.classList.add('opacity-0'); m.querySelector('div').classList.add('scale-95'); setTimeout(() => {m.classList.add('hidden'); m.classList.remove('flex');}, 300); },
             toggleArchiveView: () => {
                 state.viewingArchived = !state.viewingArchived;
                 const btn = document.getElementById('btn-toggle-archive');
                 btn.className = `text-xs px-2.5 py-1.5 rounded transition ${state.viewingArchived ? 'bg-blue-600 text-white' : 'bg-gray-800 hover:bg-gray-700 text-gray-400'}`;
                 renderProjects(); updateChart();
+            },
+            // --- V2.8 任務規劃詳情面板 ---
+            openTaskDetailModal: (pid, sid) => {
+                const p = state.projects.find(x => x.id === pid);
+                if(!p) return;
+                const task = (p.mvpSteps || []).find(s => s.id === sid);
+                if(!task) return;
+
+                document.getElementById('task-modal-pid').value = pid;
+                document.getElementById('task-modal-sid').value = sid;
+                
+                // 載入基本資訊
+                document.getElementById('task-modal-title').innerText = task.action;
+                document.getElementById('task-modal-metric').innerText = `📊 指標：${task.metric}`;
+                document.getElementById('task-modal-group').innerHTML = task.group ? `<span class="bg-purple-900/50 text-purple-300 border border-purple-500/50 px-2 py-0.5 rounded text-xs shadow-sm font-bold">${task.group}</span>` : '';
+                
+                // 載入編輯欄位
+                document.getElementById('task-modal-start').value = task.startDate || '';
+                document.getElementById('task-modal-end').value = task.endDate || '';
+                document.getElementById('task-modal-notes').value = task.retro || ''; // 原本的 retro 擴充為筆記
+                document.getElementById('task-modal-prompt').value = task.agentPrompt || ''; 
+
+                // 更新按鈕 UI 狀態
+                window.updateTaskStatusModalUI(task.status || 'pending');
+
+                const m = DOM.taskDetailModal; m.classList.remove('hidden'); m.classList.add('flex'); 
+                requestAnimationFrame(()=> {m.classList.remove('opacity-0'); m.querySelector('div').classList.remove('scale-95');});
+            },
+            closeTaskDetailModal: () => { 
+                const m = DOM.taskDetailModal; m.classList.add('opacity-0'); m.querySelector('div').classList.add('scale-95'); 
+                setTimeout(() => {m.classList.add('hidden'); m.classList.remove('flex');}, 300); 
             }
         };
 
@@ -307,13 +402,17 @@
                 document.getElementById('btn-login').onclick = () => signInWithPopup(auth, provider);
                 
                 onAuthStateChanged(auth, (user) => {
+                    // 嚴格過濾：只要狀態改變，先清空資料與監聽
+                    if(unsubscribeProjects) { unsubscribeProjects(); unsubscribeProjects = null; }
+                    state.projects = []; state.userId = null; 
+                    renderProjects(); updateChart(); if(state.selectedProjectId) ui.closeDashboard();
+
                     if (user && !user.isAnonymous) {
                         state.userId = user.uid;
                         DOM.authStatus.innerHTML = `<img src="${user.photoURL}" class="w-7 h-7 rounded-full border border-gray-600 shadow-sm" title="${user.displayName}">`;
                         document.getElementById('btn-login').classList.add('hidden');
-                        listenToProjects();
+                        listenToProjects(); // 重新啟動專屬此帳號的監聽
                     } else {
-                        state.userId = null; state.projects = []; renderProjects();
                         document.getElementById('btn-login').classList.remove('hidden');
                         DOM.authStatus.innerHTML = '';
                     }
@@ -327,7 +426,7 @@
 
         const listenToProjects = () => {
             if (!state.userId) return;
-            onSnapshot(collection(db, 'artifacts', state.appId, 'users', state.userId, 'projects'), (snapshot) => {
+            unsubscribeProjects = onSnapshot(collection(db, 'artifacts', state.appId, 'users', state.userId, 'projects'), (snapshot) => {
                 const arr = []; snapshot.forEach(doc => { const d = doc.data(); d.score = d.impact * d.confidence * d.ease; arr.push(d); });
                 state.projects = arr.sort((a, b) => b.score - a.score); renderProjects(); updateChart();
                 if (state.selectedProjectId) renderDashboardContent();
@@ -360,7 +459,7 @@
             ui.showToast("Webhook 已更新");
         };
 
-        // --- Idea Inbox (便利貼) ---
+        // --- Idea Inbox ---
         const addIdea = async (e) => {
             e.preventDefault(); if (!state.userId || !state.selectedProjectId) return;
             const text = document.getElementById('idea-input').value.trim();
@@ -389,7 +488,7 @@
             ui.showToast("已轉換為草稿！請補齊標籤與指標。");
         };
 
-        // --- MVP 任務與排序 ---
+        // --- MVP 任務邏輯 ---
         const addMvpStep = async (e) => {
             e.preventDefault(); if (!state.userId || !state.selectedProjectId) return;
             const actionText = document.getElementById('mvp-action').value.trim();
@@ -397,71 +496,97 @@
             const groupText = document.getElementById('mvp-group').value.trim();
             if (!actionText) return;
             const p = state.projects.find(x => x.id === state.selectedProjectId);
-            // 賦予預設排序值 (排在最後)
             const nextOrder = (p.mvpSteps || []).length;
             const step = { 
                 id: crypto.randomUUID(), action: actionText, metric: metricText, group: groupText,
                 status: 'pending', startDate: document.getElementById('mvp-start').value, endDate: document.getElementById('mvp-end').value, 
-                retro: '', order: nextOrder 
+                retro: '', agentPrompt: '', order: nextOrder 
             };
             await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', p.id), { mvpSteps: [...(p.mvpSteps || []), step] });
             DOM.mvpForm.reset();
+            document.getElementById('mvp-group').value = ''; // 新增後清空群組，方便打下一個
         };
 
         window.moveMvp = async (pid, sid, direction) => {
             const p = state.projects.find(x=>x.id===pid);
             let steps = [...(p.mvpSteps || [])];
-            // 確保每項都有 order，然後排序
             steps.forEach((s, i) => { if(s.order === undefined) s.order = i; });
             steps.sort((a,b) => a.order - b.order);
-            
             const idx = steps.findIndex(s => s.id === sid);
-            if (direction === -1 && idx > 0) {
-                [steps[idx], steps[idx-1]] = [steps[idx-1], steps[idx]]; // 陣列位置交換
-            } else if (direction === 1 && idx < steps.length - 1) {
-                [steps[idx], steps[idx+1]] = [steps[idx+1], steps[idx]];
-            } else return; // 到達邊界不動作
-            
-            // 重新賦予乾淨的 order 數值
+            if (direction === -1 && idx > 0) { [steps[idx], steps[idx-1]] = [steps[idx-1], steps[idx]]; } 
+            else if (direction === 1 && idx < steps.length - 1) { [steps[idx], steps[idx+1]] = [steps[idx+1], steps[idx]]; } 
+            else return; 
             steps.forEach((s, i) => s.order = i);
             await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', pid), { mvpSteps: steps });
         };
 
-        window.promptMvpStatus = (pid, sid, newStatus) => {
-            if(newStatus === 'pending') { updateMvpStatusDB(pid, sid, newStatus, ''); } 
-            else { ui.openRetroModal(pid, sid, newStatus); }
-        };
-
-        window.saveRetro = () => {
-            const pid = document.getElementById('retro-pid').value;
-            const sid = document.getElementById('retro-sid').value;
-            const status = document.getElementById('retro-status').value;
-            const retroText = document.getElementById('retro-input').value.trim();
-            updateMvpStatusDB(pid, sid, status, retroText);
-            ui.closeRetroModal();
-        };
-
-        const updateMvpStatusDB = async (pid, sid, newStatus, retroText) => { 
-            const p = state.projects.find(x=>x.id===pid); 
-            await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', pid), { 
-                mvpSteps: p.mvpSteps.map(s => s.id === sid ? {...s, status: newStatus, completed: newStatus === 'success', retro: retroText!==undefined ? retroText : s.retro} : s) 
-            }); 
-        };
-        
         window.deleteMvp = async (pid, sid) => { 
             const p = state.projects.find(x=>x.id===pid); 
             await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', pid), { mvpSteps: p.mvpSteps.filter(s => s.id !== sid) }); 
         };
 
-        window.triggerWebhook = async (pid, sid) => {
+        // --- V2.8 任務規劃詳情 Modal 邏輯 ---
+        let currentModalTaskStatus = 'pending';
+        
+        window.updateTaskStatusModalUI = (status) => {
+            currentModalTaskStatus = status;
+            const btnS = document.getElementById('btn-status-success');
+            const btnP = document.getElementById('btn-status-pivot');
+            const btnN = document.getElementById('btn-status-pending');
+            
+            // 重置樣式
+            [btnS, btnP, btnN].forEach(b => b.className = "flex-1 py-2 text-sm font-bold rounded-lg border border-gray-600 text-gray-400 hover:bg-gray-800 transition");
+            
+            // 套用選中樣式
+            if(status === 'success') { btnS.className = "flex-1 py-2 text-sm font-bold rounded-lg border border-emerald-500 bg-emerald-900/50 text-emerald-400 shadow-inner"; }
+            else if(status === 'pivot') { btnP.className = "flex-1 py-2 text-sm font-bold rounded-lg border border-red-500 bg-red-900/50 text-red-400 shadow-inner"; }
+            else { btnN.className = "flex-1 py-2 text-sm font-bold rounded-lg border border-gray-500 bg-gray-800 text-gray-200 shadow-inner"; }
+        };
+
+        window.updateTaskStatusFromModal = (status) => { window.updateTaskStatusModalUI(status); };
+
+        window.saveTaskDetails = async () => {
+            const pid = document.getElementById('task-modal-pid').value;
+            const sid = document.getElementById('task-modal-sid').value;
+            const p = state.projects.find(x=>x.id===pid); 
+            if(!p) return;
+
+            const newStartDate = document.getElementById('task-modal-start').value;
+            const newEndDate = document.getElementById('task-modal-end').value;
+            const newNotes = document.getElementById('task-modal-notes').value.trim();
+            const newPrompt = document.getElementById('task-modal-prompt').value.trim();
+
+            await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', pid), { 
+                mvpSteps: p.mvpSteps.map(s => s.id === sid ? {
+                    ...s, 
+                    status: currentModalTaskStatus, 
+                    completed: currentModalTaskStatus === 'success', 
+                    retro: newNotes,
+                    agentPrompt: newPrompt,
+                    startDate: newStartDate,
+                    endDate: newEndDate
+                } : s) 
+            }); 
+            ui.showToast("任務設定已儲存");
+            ui.closeTaskDetailModal();
+        };
+
+        window.triggerWebhookFromModal = async () => {
+            const pid = document.getElementById('task-modal-pid').value;
             const p = state.projects.find(x=>x.id===pid);
-            if(!p || !p.webhookUrl) return ui.showToast("尚未設定 Webhook", "error");
-            const step = p.mvpSteps.find(s=>s.id===sid);
+            if(!p || !p.webhookUrl) return ui.showToast("尚未設定專案 Webhook", "error");
+            
+            // 直接抓取畫面上當前的輸入值發送，不一定要先存檔
+            const actionText = document.getElementById('task-modal-title').innerText;
+            const notes = document.getElementById('task-modal-notes').value.trim();
+            const prompt = document.getElementById('task-modal-prompt').value.trim();
+            const status = currentModalTaskStatus;
+
             ui.showToast("正在拋送至 Agent...");
             try {
                 await fetch(p.webhookUrl, {
                     method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ projectName: p.name, task: step.action, metric: step.metric, group: step.group, status: step.status, learning: step.retro })
+                    body: JSON.stringify({ projectName: p.name, task: actionText, status: status, notes: notes, aiPrompt: prompt })
                 });
                 ui.showToast("已成功拋送資料！", "success");
             } catch(e) { ui.showToast("Webhook 發送可能失敗", "error"); }
@@ -469,7 +594,7 @@
 
         // --- 渲染畫面 ---
         const renderProjects = () => {
-            if(!state.userId) return;
+            if(!state.userId) { DOM.projectList.innerHTML = ''; DOM.projectCount.innerText = '0'; return; }
             const filtered = state.projects.filter(p => state.viewingArchived ? p.archived : !p.archived);
             DOM.projectCount.innerText = filtered.length;
             DOM.projectList.innerHTML = filtered.length ? filtered.map(p => {
@@ -501,7 +626,7 @@
                 </div>
             `).join('') : '<div class="col-span-full text-center text-sm text-gray-500 py-10 bg-gray-800/50 rounded-2xl border border-gray-700 border-dashed">點子牆目前空空如也，來點靈感吧！</div>';
 
-            // 渲染 MVP
+            // 渲染 MVP (V2.8 版清爽卡片)
             let steps = [...(p.mvpSteps || [])];
             steps.forEach((s, i) => { if(s.order === undefined) s.order = i; });
             steps.sort((a,b) => a.order - b.order); // 依照自訂順序排列
@@ -512,26 +637,32 @@
             DOM.mvpList.innerHTML = total ? steps.map((s, idx) => {
                 const isSuccess = s.status === 'success' || s.completed === true; const isPivot = s.status === 'pivot';
                 const aText = s.action || s.text || '未命名行動'; const mText = s.metric || '無量化指標';
-                const groupHtml = s.group ? `<span class="bg-purple-900/50 text-purple-300 border border-purple-500/50 px-2 py-0.5 rounded text-[10px] mr-2 shadow-sm font-bold">${s.group}</span>` : '';
-                const dateHtml = (s.startDate || s.endDate) ? `<div class="text-xs text-indigo-300 mt-2 font-medium"><i class="fa-regular fa-calendar-check"></i> ${s.startDate||'未定'} - ${s.endDate||'未定'}</div>` : '';
+                const groupHtml = s.group ? `<span class="bg-purple-900/50 text-purple-300 border border-purple-500/50 px-2 py-0.5 rounded text-[10px] mr-2 shadow-sm font-bold inline-block mb-1">${s.group}</span>` : '';
                 
-                let statusUI = '', retroUI = '', webhookUI = '';
-                if(s.retro) retroUI = `<div class="mt-3 text-sm bg-gray-800 p-3 rounded-lg text-gray-300 border-l-4 ${isSuccess?'border-emerald-500':'border-red-500'} shadow-inner"><i class="fa-regular fa-comment-dots text-gray-500 mr-1"></i> ${s.retro}</div>`;
-                if(p.webhookUrl && !isSuccess && !isPivot) webhookUI = `<button onclick="triggerWebhook('${p.id}', '${s.id}')" class="text-xs font-bold bg-blue-900/60 text-blue-300 border border-blue-500/50 hover:bg-blue-600 hover:text-white px-3 py-2 rounded-xl transition ml-3 shadow"><i class="fa-solid fa-robot"></i> Webhook</button>`;
-                if(p.webhookUrl && (isSuccess || isPivot)) webhookUI = `<button onclick="triggerWebhook('${p.id}', '${s.id}')" class="text-xs font-bold text-blue-400 ml-3 hover:text-blue-300 bg-blue-900/30 px-3 py-1.5 rounded-lg transition"><i class="fa-solid fa-paper-plane"></i> POST</button>`;
+                // 狀態標示 (精簡版)
+                let statusIcon = '';
+                if(isSuccess) statusIcon = '<span class="ml-2 text-xs font-bold text-emerald-400 bg-emerald-900/40 px-2 py-1 rounded border border-emerald-500/40"><i class="fa-solid fa-check"></i> 達標</span>';
+                else if(isPivot) statusIcon = '<span class="ml-2 text-xs font-bold text-red-400 bg-red-900/40 px-2 py-1 rounded border border-red-500/40"><i class="fa-solid fa-rotate-left"></i> 軸轉</span>';
 
-                if (isSuccess) statusUI = `<div class="mt-4 flex items-center justify-between"><div class="text-sm font-bold text-emerald-400 bg-emerald-900/40 px-3 py-1.5 rounded-lg border border-emerald-500/50 shadow-sm"><i class="fa-solid fa-check mr-1"></i> 驗證達標</div> <div><button onclick="promptMvpStatus('${p.id}', '${s.id}', 'pending')" class="text-xs text-gray-500 hover:text-gray-300 underline font-medium">重設</button>${webhookUI}</div></div>`;
-                else if (isPivot) statusUI = `<div class="mt-4 flex items-center justify-between"><div class="text-sm font-bold text-red-400 bg-red-900/40 px-3 py-1.5 rounded-lg border border-red-500/50 shadow-sm"><i class="fa-solid fa-rotate-left mr-1"></i> 需軸轉/失敗</div> <div><button onclick="promptMvpStatus('${p.id}', '${s.id}', 'pending')" class="text-xs text-gray-500 hover:text-gray-300 underline font-medium">重設</button>${webhookUI}</div></div>`;
-                else statusUI = `<div class="mt-4 flex gap-3 items-center"><button onclick="promptMvpStatus('${p.id}', '${s.id}', 'success')" class="flex-1 text-sm font-bold bg-gray-800 hover:bg-emerald-900/60 text-gray-300 hover:text-emerald-400 border border-gray-600 hover:border-emerald-500/60 py-2.5 rounded-xl transition shadow"><i class="fa-solid fa-check"></i> 達標</button><button onclick="promptMvpStatus('${p.id}', '${s.id}', 'pivot')" class="flex-1 text-sm font-bold bg-gray-800 hover:bg-red-900/60 text-gray-300 hover:text-red-400 border border-gray-600 hover:border-red-500/60 py-2.5 rounded-xl transition shadow"><i class="fa-solid fa-xmark"></i> 軸轉</button>${webhookUI}</div>`;
+                // 日期與筆記圖示
+                let metaHtml = '';
+                if(s.startDate || s.endDate) metaHtml += `<span class="mr-3"><i class="fa-regular fa-calendar-check"></i> ${s.startDate||'未定'}</span>`;
+                if(s.retro || s.agentPrompt) metaHtml += `<span class="text-yellow-400"><i class="fa-solid fa-pen-to-square"></i> 已有筆記</span>`;
 
-                return `<li class="p-5 md:p-6 rounded-2xl bg-gray-900 border-2 ${isSuccess?'border-emerald-500/40':(isPivot?'border-red-500/40':'border-gray-700')} relative shadow-md transition hover:border-gray-500">
-                    <div class="absolute top-3 right-4 flex gap-2">
-                        <button onclick="moveMvp('${p.id}', '${s.id}', -1)" class="text-gray-500 hover:text-white p-1 transition ${idx === 0 ? 'opacity-20 cursor-not-allowed' : ''}"><i class="fa-solid fa-arrow-up"></i></button>
-                        <button onclick="moveMvp('${p.id}', '${s.id}', 1)" class="text-gray-500 hover:text-white p-1 transition ${idx === steps.length-1 ? 'opacity-20 cursor-not-allowed' : ''}"><i class="fa-solid fa-arrow-down"></i></button>
-                        <button onclick="deleteMvp('${p.id}', '${s.id}')" class="text-gray-600 hover:text-red-500 p-1 ml-2 transition"><i class="fa-solid fa-trash-can"></i></button>
+                return `<li class="p-4 md:p-5 rounded-2xl bg-gray-900 border-2 ${isSuccess?'border-emerald-500/40 opacity-70':(isPivot?'border-red-500/40 opacity-70':'border-gray-700')} relative shadow-sm transition hover:border-gray-500">
+                    <div class="absolute top-3 right-3 flex gap-1">
+                        <button onclick="moveMvp('${p.id}', '${s.id}', -1)" class="text-gray-500 hover:text-white p-2 transition ${idx === 0 ? 'opacity-20 cursor-not-allowed' : ''}"><i class="fa-solid fa-arrow-up"></i></button>
+                        <button onclick="moveMvp('${p.id}', '${s.id}', 1)" class="text-gray-500 hover:text-white p-2 transition ${idx === steps.length-1 ? 'opacity-20 cursor-not-allowed' : ''}"><i class="fa-solid fa-arrow-down"></i></button>
                     </div>
-                    <div class="pr-20"><div class="text-base ${isSuccess?'text-gray-500 line-through':'text-gray-100'} font-bold mb-1">${groupHtml}🎯 行動：${aText}</div><div class="text-sm font-medium text-indigo-300/90 mt-2">📊 指標：${mText}</div></div>
-                    ${dateHtml} ${retroUI} ${statusUI}</li>`;
+                    <div class="pr-20 mb-3">
+                        <div class="text-base ${isSuccess?'text-gray-500 line-through':'text-gray-100'} font-bold mb-1 leading-tight">${groupHtml} ${aText} ${statusIcon}</div>
+                        <div class="text-sm font-medium text-indigo-300/90 truncate">📊 指標：${mText}</div>
+                    </div>
+                    <div class="flex justify-between items-end border-t border-gray-800 pt-3 mt-1">
+                        <div class="text-[11px] text-gray-500 font-medium flex items-center">${metaHtml}</div>
+                        <button onclick="ui.openTaskDetailModal('${p.id}', '${s.id}')" class="text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg transition shadow"><i class="fa-solid fa-clipboard-list mr-1"></i> 規劃與執行</button>
+                    </div>
+                </li>`;
             }).join('') : '<div class="text-sm text-gray-500 text-center py-10 bg-gray-800/50 rounded-2xl border border-gray-700 border-dashed">尚未建立 MVP 驗證假說！</div>';
             
             ['audience', 'competitors', 'advantages'].forEach(k => { const el = document.getElementById(`view-${k==='audience'?'ta':(k==='competitors'?'comp':'adv')}`); if(el) el.innerText = p[k] || '尚未設定'; });
@@ -579,19 +710,26 @@
         const renderDayTasks = (dateStr) => {
             document.getElementById('selected-date-title').innerHTML = `<i class="fa-solid fa-list-check"></i> ${dateStr} 任務清單`;
             let html = '', count = 0;
+            // 嚴格過濾確保只顯示當前用戶專案
+            if(!state.userId) { document.getElementById('day-tasks-list').innerHTML = ''; return; }
+            
             state.projects.forEach(p => {
                 const tasks = (p.mvpSteps||[]).filter(s => s.startDate === dateStr || s.endDate === dateStr || isDateInRange(dateStr, s.startDate, s.endDate));
                 if (tasks.length > 0) {
-                    html += `<div class="mb-5 bg-gray-800/50 p-4 rounded-2xl border border-gray-700 shadow-sm"><div class="text-sm font-bold text-blue-400 mb-3"><i class="fa-solid fa-folder-open text-blue-500 mr-1"></i> ${p.name}</div><div class="space-y-4">`;
+                    html += `<div class="mb-5 bg-gray-800/50 p-4 rounded-2xl border border-gray-700 shadow-sm"><div class="text-sm font-bold text-blue-400 mb-3"><i class="fa-solid fa-folder-open text-blue-500 mr-1"></i> ${p.name}</div><div class="space-y-3">`;
                     tasks.forEach(t => {
                         const isSuccess = t.status === 'success' || t.completed === true; const isPivot = t.status === 'pivot';
                         const aText = t.action || t.text || '未命名行動'; const mText = t.metric || '無量化指標';
                         const groupHtml = t.group ? `<span class="bg-purple-900/50 text-purple-300 border border-purple-500/50 px-2 py-0.5 rounded text-[10px] mr-2 shadow-sm font-bold">${t.group}</span>` : '';
-                        let statusUI = '';
-                        if (isSuccess) statusUI = `<div class="mt-3 text-xs font-bold text-emerald-400 bg-emerald-900/40 px-3 py-1.5 rounded-lg inline-block border border-emerald-500/40"><i class="fa-solid fa-check"></i> 驗證達標</div> <button onclick="updateMvpStatusDB('${p.id}', '${t.id}', 'pending'); setTimeout(()=>renderDayTasks('${dateStr}'), 300)" class="text-[11px] font-medium text-gray-500 ml-3 hover:text-gray-300 underline">重設</button>`;
-                        else if (isPivot) statusUI = `<div class="mt-3 text-xs font-bold text-red-400 bg-red-900/40 px-3 py-1.5 rounded-lg inline-block border border-red-500/40"><i class="fa-solid fa-rotate-left"></i> 需軸轉/失敗</div> <button onclick="updateMvpStatusDB('${p.id}', '${t.id}', 'pending'); setTimeout(()=>renderDayTasks('${dateStr}'), 300)" class="text-[11px] font-medium text-gray-500 ml-3 hover:text-gray-300 underline">重設</button>`;
-                        else statusUI = `<div class="mt-3 flex gap-3"><button onclick="updateMvpStatusDB('${p.id}', '${t.id}', 'success'); setTimeout(()=>renderDayTasks('${dateStr}'), 300)" class="text-xs font-bold bg-gray-800 hover:bg-emerald-900/60 text-gray-300 hover:text-emerald-400 border border-gray-600 hover:border-emerald-500/60 px-3 py-2 rounded-xl transition shadow-sm"><i class="fa-solid fa-check"></i> 達標</button><button onclick="updateMvpStatusDB('${p.id}', '${t.id}', 'pivot'); setTimeout(()=>renderDayTasks('${dateStr}'), 300)" class="text-xs font-bold bg-gray-800 hover:bg-red-900/60 text-gray-300 hover:text-red-400 border border-gray-600 hover:border-red-500/60 px-3 py-2 rounded-xl transition shadow-sm"><i class="fa-solid fa-xmark"></i> 軸轉</button></div>`;
-                        html += `<div class="bg-gray-900 p-4 rounded-xl border-2 ${isSuccess?'border-emerald-500/40':(isPivot?'border-red-500/40':'border-gray-700')}"><div class="text-sm ${isSuccess?'text-gray-500 line-through':'text-gray-100'} font-bold mb-1">${groupHtml}🎯 ${aText}</div><div class="text-xs font-medium text-indigo-300 mt-2">📊 ${mText}</div>${statusUI}</div>`;
+                        
+                        let statusIcon = '';
+                        if(isSuccess) statusIcon = '<span class="ml-2 text-[10px] font-bold text-emerald-400 bg-emerald-900/40 px-2 py-0.5 rounded border border-emerald-500/40"><i class="fa-solid fa-check"></i> 達標</span>';
+                        else if(isPivot) statusIcon = '<span class="ml-2 text-[10px] font-bold text-red-400 bg-red-900/40 px-2 py-0.5 rounded border border-red-500/40"><i class="fa-solid fa-rotate-left"></i> 軸轉</span>';
+                        
+                        html += `<div class="bg-gray-900 p-3.5 rounded-xl border-2 ${isSuccess?'border-emerald-500/40':(isPivot?'border-red-500/40':'border-gray-700')}">
+                            <div class="flex justify-between items-start"><div class="text-sm ${isSuccess?'text-gray-500 line-through':'text-gray-100'} font-bold mb-1 flex-1 pr-2 leading-tight">${groupHtml}🎯 ${aText}</div>${statusIcon}</div>
+                            <div class="text-xs font-medium text-indigo-300 mt-1">📊 ${mText}</div>
+                        </div>`;
                     });
                     html += `</div></div>`; count++;
                 }
