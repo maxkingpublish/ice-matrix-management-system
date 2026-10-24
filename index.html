@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ICE 專案決策系統 v3.08</title>
+    <title>ICE 專案決策系統 v3.09</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -711,7 +711,6 @@
             });
         };
 
-        // --- V3.08: Bug Fix for saveProject (ensure it's attached correctly) ---
         window.saveProject = async (e) => {
             e.preventDefault(); if (!state.userId) return;
             const id = document.getElementById('project-id').value || crypto.randomUUID();
@@ -748,7 +747,6 @@
             window.ui.showToast("Webhook 已更新");
         };
 
-        // --- V3.08: Bug Fix for addIdea ---
         window.addIdea = async (e) => {
             e.preventDefault(); if (!state.userId || !state.selectedProjectId) return;
             const text = document.getElementById('idea-input').value.trim();
@@ -777,7 +775,6 @@
             window.ui.showToast("已轉換為草稿！請補齊標籤與指標。");
         };
 
-        // --- V3.08: Bug Fix for addMvpStep ---
         window.addMvpStep = async (e) => {
             e.preventDefault(); if (!state.userId || !state.selectedProjectId) return;
             const actionText = document.getElementById('mvp-action').value.trim();
@@ -810,9 +807,32 @@
             await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', pid), { mvpSteps: steps });
         };
 
-        window.deleteMvp = async (pid, sid) => { 
-            const p = state.projects.find(x=>x.id===pid); 
-            await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', pid), { mvpSteps: p.mvpSteps.filter(s => s.id !== sid) }); 
+        // --- V3.09: Delete MVP Task ---
+        window.deleteMvpPrompt = (pid, sid) => {
+            window.ui.openConfirmModal(async () => {
+                const p = state.projects.find(x=>x.id===pid); 
+                await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', pid), { mvpSteps: p.mvpSteps.filter(s => s.id !== sid) }); 
+                window.ui.showToast("任務已刪除");
+            });
+        };
+
+        // --- V3.09: Demote MVP to Idea ---
+        window.demoteMvp = async (pid, sid) => {
+            const p = state.projects.find(x => x.id === pid);
+            if (!p) return;
+            const step = (p.mvpSteps || []).find(s => s.id === sid);
+            if (!step) return;
+
+            const colors = ['bg-yellow-200/90', 'bg-blue-200/90', 'bg-pink-200/90', 'bg-emerald-200/90', 'bg-purple-200/90'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const ideaText = step.action + (step.metric ? `\n(指標: ${step.metric})` : '');
+            const newIdea = { id: crypto.randomUUID(), text: ideaText, color, createdAt: Date.now() };
+
+            await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', pid), { 
+                ideas: [...(p.ideas || []), newIdea],
+                mvpSteps: p.mvpSteps.filter(s => s.id !== sid)
+            });
+            window.ui.showToast("任務已退回點子牆！");
         };
 
         window.triggerWebhook = async (pid, sid) => {
@@ -886,18 +906,21 @@
                     webhookBtnHtml = `<button onclick="window.triggerWebhook('${p.id}', '${s.id}')" class="text-[11px] font-bold bg-indigo-900/60 text-indigo-300 border border-indigo-500/50 hover:bg-indigo-600 hover:text-white px-2.5 py-1.5 rounded-lg transition shadow shrink-0 mr-2"><i class="fa-solid fa-paper-plane mr-1"></i> Webhook</button>`;
                 }
 
+                // V3.09: Add Delete Button and Demote Button
                 return `<li class="p-4 md:p-5 rounded-2xl bg-gray-900 border-2 ${isSuccess?'border-emerald-500/40 opacity-70':(isPivot?'border-red-500/40 opacity-70':'border-gray-700')} relative shadow-sm transition hover:border-gray-500">
-                    <div class="absolute top-3 right-3 flex gap-1">
+                    <div class="absolute top-3 right-3 flex gap-1 items-center">
                         <button onclick="window.moveMvp('${p.id}', '${s.id}', -1)" class="text-gray-500 hover:text-white p-2 transition ${idx === 0 ? 'opacity-20 cursor-not-allowed' : ''}"><i class="fa-solid fa-arrow-up"></i></button>
                         <button onclick="window.moveMvp('${p.id}', '${s.id}', 1)" class="text-gray-500 hover:text-white p-2 transition ${idx === steps.length-1 ? 'opacity-20 cursor-not-allowed' : ''}"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button onclick="window.deleteMvpPrompt('${p.id}', '${s.id}')" class="text-gray-500 hover:text-red-400 p-2 transition ml-1" title="刪除任務"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
-                    <div class="pr-20 mb-3">
+                    <div class="pr-24 mb-3">
                         <div class="text-base ${isSuccess?'text-gray-500 line-through':'text-gray-100'} font-bold mb-1 leading-tight">${groupHtml} ${aText} ${statusIcon}</div>
                         <div class="text-sm font-medium text-indigo-300/90 truncate">📊 指標：${mText}</div>
                     </div>
                     <div class="flex justify-between items-end border-t border-gray-800 pt-3 mt-1">
                         <div class="text-[11px] text-gray-500 font-medium flex items-center">${metaHtml}</div>
                         <div class="flex gap-2 items-center">
+                            <button onclick="window.demoteMvp('${p.id}', '${s.id}')" class="text-[11px] font-bold bg-yellow-900/30 text-yellow-500 border border-yellow-700/50 hover:bg-yellow-700 hover:text-white px-2.5 py-1.5 rounded-lg transition shadow shrink-0"><i class="fa-solid fa-rotate-left mr-1"></i> 轉回點子</button>
                             ${webhookBtnHtml}
                             <button onclick="window.ui.openTaskDetailModal('${p.id}', '${s.id}')" class="text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg transition shadow"><i class="fa-solid fa-clipboard-list mr-1"></i> 規劃</button>
                         </div>
