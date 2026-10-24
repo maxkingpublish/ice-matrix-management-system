@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ICE 專案決策系統 v2.94</title>
+    <title>ICE 專案決策系統 v3.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -69,7 +69,6 @@
                 <canvas id="iceChart"></canvas>
             </div>
 
-            <!-- Dashboard Panel -->
             <div id="dashboard-panel" class="fixed md:absolute bottom-0 left-0 right-0 glass-panel border-t border-gray-700 transform translate-y-full transition-transform duration-300 flex flex-col h-[85dvh] md:h-[80%] shadow-[0_-20px_50px_rgba(0,0,0,0.9)] z-40 md:z-30 rounded-t-3xl md:rounded-none">
                 
                 <div class="w-full flex justify-center pt-3 pb-1 md:hidden shrink-0"><div class="w-12 h-1.5 bg-gray-600 rounded-full"></div></div>
@@ -107,7 +106,6 @@
                         <div class="mb-8 bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-700 shadow-xl shrink-0">
                             <h4 class="text-base font-bold text-emerald-400 mb-2"><i class="fa-solid fa-flask"></i> 建立 MVP 驗證假說</h4>
                             <p class="text-sm text-gray-400 mb-5 leading-relaxed">精神：不寫「待辦事項」，寫下「實驗行動」與「成功標準」。</p>
-                            <!-- V2.94: 日期欄位已經移到 Modal，純粹保留最核心的行為 -->
                             <form id="mvp-form" class="flex flex-col gap-4">
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div class="md:col-span-2"><label class="block text-xs text-gray-400 mb-1.5 font-medium">1. 採取行動 (Action)</label><input type="text" id="mvp-action" required placeholder="例：在落地頁加入 Email 訂閱框" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 outline-none transition"></div>
@@ -129,7 +127,10 @@
                     <!-- Market Tab -->
                     <div id="content-market" class="p-4 md:p-8 hidden space-y-5 text-sm max-w-4xl mx-auto w-full pb-20">
                         <div class="bg-indigo-900/20 p-5 md:p-6 rounded-2xl border border-indigo-500/30 shadow-md shrink-0">
-                            <h4 class="text-indigo-300 font-bold mb-3 text-base"><i class="fa-solid fa-star text-yellow-400"></i> 專案願景與 AI 脈絡 (北極星)</h4>
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="text-indigo-300 font-bold text-base"><i class="fa-solid fa-star text-yellow-400"></i> 專案願景與 AI 脈絡 (北極星)</h4>
+                                <span id="view-deliverable" class="bg-indigo-600/30 text-indigo-300 border border-indigo-500/50 px-2.5 py-1 rounded-md text-xs font-semibold">產出型態</span>
+                            </div>
                             <p id="view-vision" class="text-gray-300 whitespace-pre-wrap leading-relaxed text-sm"></p>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 shrink-0">
@@ -143,7 +144,7 @@
                     <div id="content-agent" class="p-4 md:p-8 hidden space-y-5 max-w-4xl mx-auto w-full pb-20">
                         <div class="bg-blue-900/20 border border-blue-500/30 p-5 rounded-2xl shrink-0">
                             <h4 class="text-blue-400 font-bold mb-3 text-base"><i class="fa-solid fa-satellite-dish"></i> Webhook 自動化綁定</h4>
-                            <p class="text-sm text-gray-300 mb-3 leading-relaxed">如果您有使用 n8n 或 Make，請將 Webhook URL 貼在這裡。任務卡片上的「拋送 Agent」按鈕會將資料(含專屬 Prompt 與專案願景) 發送至此，觸發自動化腳本！</p>
+                            <p class="text-sm text-gray-300 mb-3 leading-relaxed">設定您的 Langflow 或 n8n 總路由 URL。系統會將專案的「產出型態 (deliverableType)」連同提示詞打包拋送，讓總路由為您分派工作。</p>
                         </div>
                         <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700 shrink-0">
                             <h4 class="text-gray-300 font-bold mb-3 text-sm">設定您的 Webhook URL</h4>
@@ -205,8 +206,9 @@
                     <div>
                         <div class="flex justify-between items-end mb-2">
                             <h4 class="text-sm font-semibold text-purple-400"><i class="fa-solid fa-robot"></i> 專屬 Agent Prompt (AI 提示詞)</h4>
+                            <button onclick="triggerWebhookFromModal()" class="text-xs font-bold bg-blue-900/60 text-blue-300 border border-blue-500/50 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg transition shadow"><i class="fa-solid fa-paper-plane"></i> 拋送 Webhook</button>
                         </div>
-                        <p class="text-xs text-gray-500 mb-2">專為這個任務設計的 AI 提示詞。點擊任務卡片上的 Webhook 按鈕，就會將此指令傳給 n8n。</p>
+                        <p class="text-xs text-gray-500 mb-2">專為這個任務設計的 AI 提示詞。未來可透過 Webhook 傳送給 Langflow 總路由處理。</p>
                         <textarea id="task-modal-prompt" rows="3" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-purple-500 transition shadow-inner" placeholder="例如：請根據上述筆記的連結，幫我產出一份給工程師看的規格書..."></textarea>
                     </div>
                 </section>
@@ -219,7 +221,7 @@
         </div>
     </div>
 
-    <!-- Project Modal -->
+    <!-- Project Modal (V3.0 新增產出設定與刪除按鈕) -->
     <div id="project-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-[60] opacity-0 transition-opacity p-4">
         <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-2xl transform scale-95 transition-transform duration-300 relative flex flex-col max-h-[90dvh]">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-t-2xl"></div>
@@ -240,8 +242,22 @@
                         <!-- 願景區塊 -->
                         <div class="bg-yellow-900/10 border border-yellow-700/30 p-4 rounded-xl">
                             <label class="block text-sm font-medium text-yellow-500 mb-2"><i class="fa-solid fa-eye"></i> 專案願景與 AI 脈絡 (Vision & Context)</label>
-                            <p class="text-xs text-gray-400 mb-3 leading-relaxed">請詳細描述這個專案的最終目的、想解決的核心痛點、預期達到的成果。這將作為未來 AI Agent 拆解任務的「最高指導原則」。</p>
-                            <textarea id="p-vision" rows="4" placeholder="例如：我希望開發一套針對保險業務員的短影音腳本自動生成工具。&#10;最終目的：讓完全不會寫文案的業務，每天花 5 分鐘產出高轉換率短影音。&#10;預期成果：系統上線後邀請 10 位種子用戶進行 Beta 測試。" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-yellow-500 transition shadow-inner"></textarea>
+                            <p class="text-xs text-gray-400 mb-3 leading-relaxed">請詳細描述這個專案的最終目的、想解決的核心痛點、預期達到的成果。</p>
+                            <textarea id="p-vision" rows="3" placeholder="例如：讓完全不會寫文案的業務，每天花 5 分鐘產出高轉換率短影音。" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-yellow-500 transition shadow-inner"></textarea>
+                        </div>
+                        
+                        <!-- V3.0 新增：最終產出型態 -->
+                        <div class="bg-indigo-900/10 border border-indigo-700/30 p-4 rounded-xl">
+                            <label class="block text-sm font-medium text-indigo-400 mb-2"><i class="fa-solid fa-box-open"></i> 最終產出型態 (Agent Template)</label>
+                            <p class="text-xs text-gray-400 mb-3 leading-relaxed">選擇產出型態後，拋送 Webhook 時將帶有此標籤，讓 Langflow 總路由判斷要分派給哪個執行智能體。</p>
+                            <select id="p-deliverable" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition shadow-inner appearance-none">
+                                <option value="Strategy">企劃與結構 (Strategy)</option>
+                                <option value="Content">長文 / 電子書 (Content Generation)</option>
+                                <option value="Media">影音腳本 / 圖像 (Media Creation)</option>
+                                <option value="Code">獨立程式碼 / Function (Code Execution)</option>
+                                <option value="Publishing">自動發布任務 (Auto Publish)</option>
+                                <option value="Custom">自訂 (Custom)</option>
+                            </select>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 bg-gray-900/50 p-5 rounded-xl border border-gray-700 shadow-inner">
@@ -261,9 +277,13 @@
                     </section>
                 </form>
             </div>
-            <div class="p-6 border-t border-gray-700 flex gap-4 shrink-0 bg-gray-800 rounded-b-2xl">
-                <button type="button" onclick="ui.closeProjectModal()" class="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl transition text-sm text-white font-medium">取消</button>
-                <button type="submit" form="project-form" class="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition text-sm font-bold shadow-lg shadow-blue-600/30">儲存專案</button>
+            <!-- V3.0 新增刪除按鈕，置於左下角 -->
+            <div class="p-6 border-t border-gray-700 flex gap-4 shrink-0 bg-gray-800 rounded-b-2xl justify-between items-center">
+                <button type="button" onclick="deleteProjectPrompt(document.getElementById('project-id').value)" id="btn-delete-project" class="px-4 py-3 bg-red-900/40 hover:bg-red-600 text-red-400 hover:text-white rounded-xl transition text-sm font-bold border border-red-700/50 hidden"><i class="fa-solid fa-trash-can"></i> 刪除專案</button>
+                <div class="flex gap-4 flex-1 justify-end">
+                    <button type="button" onclick="ui.closeProjectModal()" class="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl transition text-sm text-white font-medium">取消</button>
+                    <button type="submit" form="project-form" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition text-sm font-bold shadow-lg shadow-blue-600/30">儲存專案</button>
+                </div>
             </div>
         </div>
     </div>
@@ -341,18 +361,23 @@
             },
             openProjectModal: (id = null) => {
                 const m = DOM.projectModal; const inner = m.querySelector('div');
+                const btnDelete = document.getElementById('btn-delete-project');
                 if (id) {
                     const p = state.projects.find(x => x.id === id); if(!p) return;
                     document.getElementById('project-id').value = p.id; document.getElementById('p-name').value = p.name;
                     ['impact', 'confidence', 'ease'].forEach(k => { document.getElementById(`p-${k}`).value = p[k]; document.getElementById(`val-${k}`).innerText = p[k]; });
                     document.getElementById('p-vision').value = p.vision || '';
+                    document.getElementById('p-deliverable').value = p.deliverable || 'Strategy';
                     ['audience', 'competitors', 'advantages'].forEach(k => { const el = document.getElementById(`p-${k}`); if(el) el.value = p[k] || ''; });
                     document.getElementById('modal-title').innerText = "編輯專案";
+                    btnDelete.classList.remove('hidden');
                 } else {
                     document.getElementById('project-form').reset(); document.getElementById('project-id').value = '';
                     ['impact', 'confidence', 'ease'].forEach(k => document.getElementById(`val-${k}`).innerText = '5');
                     document.getElementById('p-vision').value = ''; 
+                    document.getElementById('p-deliverable').value = 'Strategy';
                     document.getElementById('modal-title').innerText = "新增專案";
+                    btnDelete.classList.add('hidden');
                 }
                 m.classList.remove('hidden'); m.classList.add('flex'); requestAnimationFrame(() => { m.classList.remove('opacity-0'); inner.classList.remove('scale-95'); });
             },
@@ -463,25 +488,6 @@
             ui.closeTaskDetailModal();
         };
 
-        // V2.94 恢復全域 triggerWebhook 功能
-        window.triggerWebhook = async (pid, sid) => {
-            const p = state.projects.find(x=>x.id===pid);
-            if(!p || !p.webhookUrl) return ui.showToast("尚未設定專案 Webhook", "error");
-            
-            const step = p.mvpSteps.find(s=>s.id===sid);
-            if(!step) return;
-
-            ui.showToast("正在拋送至 Agent...");
-            try {
-                await fetch(p.webhookUrl, {
-                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ projectName: p.name, projectVision: p.vision, task: step.action, metric: step.metric, group: step.group, status: step.status, notes: step.retro, aiPrompt: step.agentPrompt })
-                });
-                ui.showToast("已成功拋送資料！", "success");
-            } catch(e) { ui.showToast("Webhook 發送可能失敗", "error"); }
-        };
-
-        // 從 Modal 內觸發 (與上方邏輯相同)
         window.triggerWebhookFromModal = async () => {
             const pid = document.getElementById('task-modal-pid').value;
             const sid = document.getElementById('task-modal-sid').value;
@@ -539,6 +545,7 @@
             const p = { 
                 id, name: document.getElementById('p-name').value.trim(), impact: +document.getElementById('p-impact').value, confidence: +document.getElementById('p-confidence').value, ease: +document.getElementById('p-ease').value, 
                 vision: document.getElementById('p-vision').value.trim(), 
+                deliverable: document.getElementById('p-deliverable').value, // V3.0 儲存產出型態
                 audience: document.getElementById('p-audience').value, competitors: document.getElementById('p-competitors').value, advantages: document.getElementById('p-advantages').value,
                 webhookUrl: existing?.webhookUrl || '', archived: existing?.archived || false, mvpSteps: existing?.mvpSteps || [], ideas: existing?.ideas || [] 
             };
@@ -546,7 +553,12 @@
             ui.closeProjectModal(); ui.showToast("專案已儲存");
         };
 
-        const deleteProject = async (id) => { await deleteDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', id)); ui.showToast("專案已刪除"); if (state.selectedProjectId === id) ui.closeDashboard(); };
+        const deleteProject = async (id) => { 
+            await deleteDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', id)); 
+            ui.showToast("專案已徹底刪除"); 
+            if (state.selectedProjectId === id) ui.closeDashboard(); 
+            ui.closeProjectModal();
+        };
         const archiveProject = async (id, isArchived) => { await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', id), { archived: isArchived }); ui.showToast(isArchived ? "已封存" : "已解封"); if (state.selectedProjectId === id) ui.closeDashboard(); };
         
         window.deleteProjectPrompt = (id) => ui.openConfirmModal(() => deleteProject(id));
@@ -596,7 +608,6 @@
             const groupText = document.getElementById('mvp-group').value.trim();
             if (!actionText) return;
             
-            // V2.94 修復 TypeError (日期已被移至 Modal，這裡傳空字串)
             const p = state.projects.find(x => x.id === state.selectedProjectId);
             const nextOrder = (p.mvpSteps || []).length;
             const step = { 
@@ -625,6 +636,21 @@
         window.deleteMvp = async (pid, sid) => { 
             const p = state.projects.find(x=>x.id===pid); 
             await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', pid), { mvpSteps: p.mvpSteps.filter(s => s.id !== sid) }); 
+        };
+
+        window.triggerWebhook = async (pid, sid) => {
+            const p = state.projects.find(x=>x.id===pid);
+            if(!p || !p.webhookUrl) return ui.showToast("尚未設定 Webhook", "error");
+            const step = p.mvpSteps.find(s=>s.id===sid);
+            ui.showToast("正在拋送至 Agent...");
+            try {
+                await fetch(p.webhookUrl, {
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
+                    // V3.0 拋送附帶 deliverableType
+                    body: JSON.stringify({ projectName: p.name, projectVision: p.vision, deliverableType: p.deliverable, task: step.action, metric: step.metric, group: step.group, status: step.status, notes: step.retro, aiPrompt: step.agentPrompt })
+                });
+                ui.showToast("已成功拋送資料！", "success");
+            } catch(e) { ui.showToast("Webhook 發送可能失敗", "error"); }
         };
 
         // --- Render ---
@@ -682,7 +708,6 @@
                 if(s.startDate || s.endDate) metaHtml += `<span class="mr-3"><i class="fa-regular fa-calendar-check"></i> ${s.startDate||'未定'}</span>`;
                 if(s.retro || s.agentPrompt) metaHtml += `<span class="text-yellow-400"><i class="fa-solid fa-pen-to-square"></i> 已有筆記</span>`;
 
-                // V2.94 Webhook 按鈕回歸主畫面
                 let webhookBtnHtml = '';
                 if(p.webhookUrl) {
                     webhookBtnHtml = `<button onclick="triggerWebhook('${p.id}', '${s.id}')" class="text-[11px] font-bold bg-indigo-900/60 text-indigo-300 border border-indigo-500/50 hover:bg-indigo-600 hover:text-white px-2.5 py-1.5 rounded-lg transition shadow shrink-0"><i class="fa-solid fa-paper-plane mr-1"></i> Webhook</button>`;
@@ -709,6 +734,10 @@
             
             // 渲染市場與願景
             document.getElementById('view-vision').innerText = p.vision || '尚未設定專案願景與脈絡。';
+            // 顯示產出標籤
+            const dMap = {'Strategy':'企劃與結構', 'Content':'長文 / 電子書', 'Media':'影音腳本 / 圖像', 'Code':'獨立程式碼 / Function', 'Publishing':'自動發布任務', 'Custom':'自訂'};
+            document.getElementById('view-deliverable').innerText = dMap[p.deliverable] || p.deliverable || '企劃與結構';
+
             ['audience', 'competitors', 'advantages'].forEach(k => { const el = document.getElementById(`view-${k==='audience'?'ta':(k==='competitors'?'comp':'adv')}`); if(el) el.innerText = p[k] || '尚未設定'; });
             document.getElementById('view-webhook-input').value = p.webhookUrl || '';
         };
@@ -770,12 +799,6 @@
                         if(isSuccess) statusIcon = '<span class="ml-2 text-[10px] font-bold text-emerald-400 bg-emerald-900/40 px-2 py-0.5 rounded border border-emerald-500/40"><i class="fa-solid fa-check"></i> 達標</span>';
                         else if(isPivot) statusIcon = '<span class="ml-2 text-[10px] font-bold text-red-400 bg-red-900/40 px-2 py-0.5 rounded border border-red-500/40"><i class="fa-solid fa-rotate-left"></i> 軸轉</span>';
                         
-                        // 日曆模式下的 Webhook 按鈕
-                        let webhookBtnHtml = '';
-                        if(p.webhookUrl) {
-                            webhookBtnHtml = `<button onclick="triggerWebhook('${p.id}', '${t.id}')" class="text-[11px] font-bold bg-indigo-900/60 text-indigo-300 border border-indigo-500/50 hover:bg-indigo-600 hover:text-white px-2 py-1.5 rounded-lg transition shadow shrink-0 mr-2"><i class="fa-solid fa-paper-plane"></i></button>`;
-                        }
-
                         html += `<div class="bg-gray-900 p-3.5 rounded-xl border-2 ${isSuccess?'border-emerald-500/40':(isPivot?'border-red-500/40':'border-gray-700')}">
                             <div class="flex justify-between items-start">
                                 <div class="text-sm ${isSuccess?'text-gray-500 line-through':'text-gray-100'} font-bold mb-1 flex-1 pr-2 leading-tight">${groupHtml}🎯 ${aText}</div>
@@ -783,10 +806,7 @@
                             </div>
                             <div class="flex justify-between items-end mt-2">
                                 <div class="text-xs font-medium text-indigo-300 truncate pr-2">📊 ${mText}</div>
-                                <div class="flex">
-                                    ${webhookBtnHtml}
-                                    <button onclick="ui.openTaskDetailModal('${p.id}', '${t.id}')" class="text-[11px] font-bold bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded-lg transition shadow shrink-0"><i class="fa-solid fa-pen"></i> 規劃</button>
-                                </div>
+                                <button onclick="ui.openTaskDetailModal('${p.id}', '${t.id}')" class="text-[11px] font-bold bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded-lg transition shadow shrink-0"><i class="fa-solid fa-pen"></i> 編輯</button>
                             </div>
                         </div>`;
                     });
