@@ -37,6 +37,11 @@
             <button id="btn-login" class="bg-white text-gray-800 hover:bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium transition shadow flex items-center gap-2 hidden">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-4 h-4" alt="Google"> <span class="hidden sm:inline">Google 登入</span>
             </button>
+            
+            <!-- V3.0 新增: AI 設定按鈕 -->
+            <button onclick="ui.openSettingsModal()" class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 px-4 py-2 rounded-lg text-sm font-medium transition shadow-lg flex items-center gap-2">
+                <i class="fa-solid fa-gear"></i> <span class="hidden sm:inline">AI 設定</span>
+            </button>
             <button onclick="ui.openCalendarModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-lg shadow-indigo-600/30 flex items-center gap-2">
                 <i class="fa-regular fa-calendar-days"></i> <span class="hidden sm:inline">任務日曆</span>
             </button>
@@ -103,13 +108,17 @@
 
                     <!-- MVP Tab -->
                     <div id="content-mvp" class="p-4 md:p-8 block max-w-4xl mx-auto w-full pb-20">
-                        <div class="mb-8 bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-700 shadow-xl shrink-0">
-                            <h4 class="text-base font-bold text-emerald-400 mb-2"><i class="fa-solid fa-flask"></i> 建立 MVP 驗證假說</h4>
-                            <p class="text-sm text-gray-400 mb-5 leading-relaxed">精神：不寫「待辦事項」，寫下「實驗行動」與「成功標準」。</p>
+                        <div class="mb-8 bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-700 shadow-xl shrink-0 relative">
+                            <!-- V3.0 新增: AI 自動拆解任務按鈕 -->
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-base font-bold text-emerald-400"><i class="fa-solid fa-flask"></i> 建立 MVP 驗證假說</h4>
+                                <button type="button" onclick="generateMvpsByAI()" class="text-xs font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-3 py-1.5 rounded-lg shadow-lg flex items-center gap-1 transition"><i class="fa-solid fa-wand-magic-sparkles"></i> ✨ AI 自動拆解</button>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-5 leading-relaxed">精神：不寫「待辦事項」，寫下「實驗行動」與「成功標準」。您可以點擊上方按鈕讓 AI 根據專案願景自動生成。</p>
                             <form id="mvp-form" class="flex flex-col gap-4">
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div class="md:col-span-2"><label class="block text-xs text-gray-400 mb-1.5 font-medium">1. 採取行動 (Action)</label><input type="text" id="mvp-action" required placeholder="例：在落地頁加入 Email 訂閱框" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 outline-none transition"></div>
-                                    <div class="md:col-span-1"><label class="block text-xs text-purple-400 mb-1.5 font-medium">群組標籤 (選填)</label><input type="text" id="mvp-group" placeholder="例：階段一、後端開發" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-2.5 text-sm text-white focus:border-purple-500 outline-none transition"></div>
+                                    <div class="md:col-span-1"><label class="block text-xs text-purple-400 mb-1.5 font-medium">群組標籤 (選填)</label><input type="text" id="mvp-group" placeholder="例：階段一、前端" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-2.5 text-sm text-white focus:border-purple-500 outline-none transition"></div>
                                 </div>
                                 <div><label class="block text-xs text-gray-400 mb-1.5 font-medium">2. 驗證指標 (Metric)</label><input type="text" id="mvp-metric" required placeholder="例：一週內獲得 50 個訂閱" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 outline-none transition"></div>
                                 <div class="flex gap-3 items-center flex-wrap bg-gray-900/50 p-3 rounded-xl border border-gray-700/50 mt-2">
@@ -221,7 +230,7 @@
         </div>
     </div>
 
-    <!-- Project Modal (V3.0 新增產出設定與刪除按鈕) -->
+    <!-- Project Modal -->
     <div id="project-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-[60] opacity-0 transition-opacity p-4">
         <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-2xl transform scale-95 transition-transform duration-300 relative flex flex-col max-h-[90dvh]">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-t-2xl"></div>
@@ -239,14 +248,12 @@
                             <input type="text" id="p-name" required placeholder="例如：自動化 IG 貼文產生器" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition shadow-inner">
                         </div>
                         
-                        <!-- 願景區塊 -->
                         <div class="bg-yellow-900/10 border border-yellow-700/30 p-4 rounded-xl">
                             <label class="block text-sm font-medium text-yellow-500 mb-2"><i class="fa-solid fa-eye"></i> 專案願景與 AI 脈絡 (Vision & Context)</label>
                             <p class="text-xs text-gray-400 mb-3 leading-relaxed">請詳細描述這個專案的最終目的、想解決的核心痛點、預期達到的成果。</p>
                             <textarea id="p-vision" rows="3" placeholder="例如：讓完全不會寫文案的業務，每天花 5 分鐘產出高轉換率短影音。" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-yellow-500 transition shadow-inner"></textarea>
                         </div>
                         
-                        <!-- V3.0 新增：最終產出型態 -->
                         <div class="bg-indigo-900/10 border border-indigo-700/30 p-4 rounded-xl">
                             <label class="block text-sm font-medium text-indigo-400 mb-2"><i class="fa-solid fa-box-open"></i> 最終產出型態 (Agent Template)</label>
                             <p class="text-xs text-gray-400 mb-3 leading-relaxed">選擇產出型態後，拋送 Webhook 時將帶有此標籤，讓 Langflow 總路由判斷要分派給哪個執行智能體。</p>
@@ -277,7 +284,6 @@
                     </section>
                 </form>
             </div>
-            <!-- V3.0 新增刪除按鈕，置於左下角 -->
             <div class="p-6 border-t border-gray-700 flex gap-4 shrink-0 bg-gray-800 rounded-b-2xl justify-between items-center">
                 <button type="button" onclick="deleteProjectPrompt(document.getElementById('project-id').value)" id="btn-delete-project" class="px-4 py-3 bg-red-900/40 hover:bg-red-600 text-red-400 hover:text-white rounded-xl transition text-sm font-bold border border-red-700/50 hidden"><i class="fa-solid fa-trash-can"></i> 刪除專案</button>
                 <div class="flex gap-4 flex-1 justify-end">
@@ -312,6 +318,52 @@
                     <h4 id="selected-date-title" class="font-bold text-indigo-400 mb-4 pb-3 border-b border-gray-700 text-lg sticky top-0 bg-gray-900/95 backdrop-blur z-10 pt-1 shrink-0">選擇日期</h4>
                     <div id="day-tasks-list" class="space-y-4 pb-12 flex-1"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal (V3.0 新增: AI 引擎設定) -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-[70] opacity-0 transition-opacity p-4">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-lg transform scale-95 transition-transform duration-300 relative flex flex-col">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-gray-500 to-gray-400 rounded-t-2xl"></div>
+            <div class="p-6 border-b border-gray-700 flex justify-between items-center shrink-0">
+                <h2 class="text-lg font-bold text-white"><i class="fa-solid fa-gear text-gray-400 mr-2"></i> AI 引擎設定</h2>
+                <button type="button" onclick="ui.closeSettingsModal()" class="text-gray-400 hover:text-white p-2 -mr-2 transition shrink-0"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-6 space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">選擇 AI 供應商 (任務拆解大腦)</label>
+                    <select id="ai-provider" onchange="window.toggleAiProvider()" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition shadow-inner appearance-none">
+                        <option value="gemini">☁️ 雲端模型 (Google Gemini 1.5 Flash)</option>
+                        <option value="local">🖥️ 地端模型 (Ollama / 自訂)</option>
+                    </select>
+                </div>
+                
+                <div id="ai-gemini-section" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-blue-400 mb-2">Gemini API Key</label>
+                        <input type="password" id="ai-gemini-key" placeholder="AIzaSy..." class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition shadow-inner">
+                        <p class="text-xs text-gray-500 mt-2">API Key 僅儲存於您的瀏覽器本地 (LocalStorage)，不會上傳至伺服器。</p>
+                    </div>
+                </div>
+
+                <div id="ai-local-section" class="space-y-4 hidden">
+                    <div class="bg-yellow-900/20 border border-yellow-700/30 p-3 rounded-lg mb-2">
+                        <p class="text-xs text-yellow-500 leading-relaxed"><i class="fa-solid fa-triangle-exclamation"></i> V3.0 暫不支援直接呼叫地端模型 API 進行前端渲染，此介面為 V3.x 擴充做準備。</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-purple-400 mb-2">Endpoint URL</label>
+                        <input type="text" id="ai-local-endpoint" placeholder="http://127.0.0.1:11434/api/generate" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 transition shadow-inner">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-purple-400 mb-2">Model Name</label>
+                        <input type="text" id="ai-local-model" placeholder="llama3.1" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 transition shadow-inner">
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-700 flex gap-4 shrink-0 bg-gray-800 rounded-b-2xl">
+                <button type="button" onclick="ui.closeSettingsModal()" class="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl transition text-sm text-white font-medium">取消</button>
+                <button type="button" onclick="window.saveAiSettings()" class="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition text-sm font-bold shadow-lg shadow-blue-600/30">儲存設定</button>
             </div>
         </div>
     </div>
@@ -358,6 +410,22 @@
                 container.appendChild(t);
                 requestAnimationFrame(() => t.classList.remove('translate-y-full', 'opacity-0'));
                 setTimeout(() => { t.classList.add('translate-y-full', 'opacity-0'); setTimeout(() => t.remove(), 300); }, 3000);
+            },
+            openSettingsModal: () => {
+                if(!state.userId) return window.ui.showToast("請先登入 Google 帳號", "error");
+                const settings = JSON.parse(localStorage.getItem(`ice_ai_${state.userId}`)) || { provider: 'gemini', geminiKey: '', localEndpoint: '', localModel: '' };
+                document.getElementById('ai-provider').value = settings.provider;
+                document.getElementById('ai-gemini-key').value = settings.geminiKey;
+                document.getElementById('ai-local-endpoint').value = settings.localEndpoint;
+                document.getElementById('ai-local-model').value = settings.localModel;
+                window.toggleAiProvider();
+                const m = document.getElementById('settings-modal');
+                m.classList.remove('hidden'); m.classList.add('flex'); 
+                requestAnimationFrame(()=> {m.classList.remove('opacity-0'); m.querySelector('div').classList.remove('scale-95');});
+            },
+            closeSettingsModal: () => {
+                const m = document.getElementById('settings-modal'); m.classList.add('opacity-0'); m.querySelector('div').classList.add('scale-95'); 
+                setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 300);
             },
             openProjectModal: (id = null) => {
                 const m = DOM.projectModal; const inner = m.querySelector('div');
@@ -446,6 +514,93 @@
             }
         };
 
+        // --- Settings / AI Provider Logic ---
+        window.toggleAiProvider = () => {
+            const provider = document.getElementById('ai-provider').value;
+            if(provider === 'gemini') {
+                document.getElementById('ai-gemini-section').classList.remove('hidden');
+                document.getElementById('ai-local-section').classList.add('hidden');
+            } else {
+                document.getElementById('ai-gemini-section').classList.add('hidden');
+                document.getElementById('ai-local-section').classList.remove('hidden');
+            }
+        };
+
+        window.saveAiSettings = () => {
+            if(!state.userId) return;
+            const settings = {
+                provider: document.getElementById('ai-provider').value,
+                geminiKey: document.getElementById('ai-gemini-key').value.trim(),
+                localEndpoint: document.getElementById('ai-local-endpoint').value.trim(),
+                localModel: document.getElementById('ai-local-model').value.trim()
+            };
+            localStorage.setItem(`ice_ai_${state.userId}`, JSON.stringify(settings));
+            window.ui.showToast("AI 引擎設定已儲存！");
+            window.ui.closeSettingsModal();
+        };
+
+        // --- Generate MVPs by AI ---
+        window.generateMvpsByAI = async () => {
+            if(!state.userId || !state.selectedProjectId) return;
+            const p = state.projects.find(x => x.id === state.selectedProjectId);
+            if(!p) return;
+            if(!p.vision) return window.ui.showToast('請先至「專案設定」填寫專案願景！AI 需要北極星。', 'error');
+
+            const settings = JSON.parse(localStorage.getItem(`ice_ai_${state.userId}`)) || { provider: 'gemini', geminiKey: '', localEndpoint: '', localModel: '' };
+
+            if (settings.provider === 'local') {
+                return window.ui.showToast('地端模式尚未實作完整串接，請先使用雲端 Gemini 測試。', 'error');
+            }
+            if (!settings.geminiKey) {
+                return window.ui.showToast('請先至上方「⚙️ AI 設定」填寫您的 Gemini API Key！', 'error');
+            }
+
+            window.ui.showToast('✨ AI 正在拆解任務中，請稍候...', 'success');
+
+            const prompt = `你是一個矽谷資深產品經理。請根據以下專案資訊，幫我拆解出 3 到 5 個具體的 MVP (最小可行性產品) 驗證任務。
+            專案名稱：${p.name}
+            專案願景與目標：${p.vision}
+            目標受眾：${p.audience}
+            競爭優勢：${p.advantages}
+
+            請以嚴格的 JSON 陣列格式回傳，不要包含任何 Markdown 標記或多餘文字。每個任務包含三個欄位：
+            [
+                { "action": "具體行動(15字內)", "metric": "驗證指標(15字內)", "group": "標籤(如:前端開發)" }
+            ]`;
+
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${settings.geminiKey}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                
+                if(!res.ok) throw new Error("API Request Failed or Invalid Key");
+                const data = await res.json();
+                let jsonText = data.candidates[0].content.parts[0].text;
+                
+                jsonText = jsonText.replace(/```json/gi, '').replace(/```/g, '').trim();
+                const tasks = JSON.parse(jsonText);
+
+                let steps = [...(p.mvpSteps || [])];
+                let nextOrder = steps.length;
+
+                tasks.forEach(t => {
+                    steps.push({
+                        id: crypto.randomUUID(), action: t.action || '未命名行動', metric: t.metric || '無指標', group: t.group || '',
+                        status: 'pending', startDate: '', endDate: '', retro: '', agentPrompt: '', order: nextOrder++
+                    });
+                });
+
+                await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', p.id), { mvpSteps: steps });
+                window.ui.showToast('✨ AI 任務拆解完成！', 'success');
+
+            } catch (error) {
+                console.error(error);
+                window.ui.showToast('AI 產出失敗，請檢查 API Key 或 JSON 格式', 'error');
+            }
+        };
+
+        // --- Task Modal Status Logic ---
         let currentModalTaskStatus = 'pending';
         window.updateTaskStatusModalUI = (status) => {
             currentModalTaskStatus = status;
@@ -484,8 +639,8 @@
                     endDate: newEndDate
                 } : s) 
             }); 
-            ui.showToast("任務設定已儲存");
-            ui.closeTaskDetailModal();
+            window.ui.showToast("任務設定已儲存");
+            window.ui.closeTaskDetailModal();
         };
 
         window.triggerWebhookFromModal = async () => {
@@ -505,7 +660,7 @@
                 onAuthStateChanged(auth, (user) => {
                     if(unsubscribeProjects) { unsubscribeProjects(); unsubscribeProjects = null; }
                     state.projects = []; state.userId = null; 
-                    renderProjects(); updateChart(); if(state.selectedProjectId) ui.closeDashboard();
+                    renderProjects(); updateChart(); if(state.selectedProjectId) window.ui.closeDashboard();
 
                     if (user && !user.isAnonymous) {
                         state.userId = user.uid;
@@ -545,30 +700,33 @@
             const p = { 
                 id, name: document.getElementById('p-name').value.trim(), impact: +document.getElementById('p-impact').value, confidence: +document.getElementById('p-confidence').value, ease: +document.getElementById('p-ease').value, 
                 vision: document.getElementById('p-vision').value.trim(), 
-                deliverable: document.getElementById('p-deliverable').value, // V3.0 儲存產出型態
+                deliverable: document.getElementById('p-deliverable').value, 
                 audience: document.getElementById('p-audience').value, competitors: document.getElementById('p-competitors').value, advantages: document.getElementById('p-advantages').value,
                 webhookUrl: existing?.webhookUrl || '', archived: existing?.archived || false, mvpSteps: existing?.mvpSteps || [], ideas: existing?.ideas || [] 
             };
             await setDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', id), p);
-            ui.closeProjectModal(); ui.showToast("專案已儲存");
+            window.ui.closeProjectModal(); window.ui.showToast("專案已儲存");
         };
 
-        const deleteProject = async (id) => { 
+        window.deleteProjectPrompt = (id) => window.ui.openConfirmModal(async () => {
             await deleteDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', id)); 
-            ui.showToast("專案已徹底刪除"); 
-            if (state.selectedProjectId === id) ui.closeDashboard(); 
-            ui.closeProjectModal();
-        };
-        const archiveProject = async (id, isArchived) => { await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', id), { archived: isArchived }); ui.showToast(isArchived ? "已封存" : "已解封"); if (state.selectedProjectId === id) ui.closeDashboard(); };
+            window.ui.showToast("專案已徹底刪除"); 
+            if (state.selectedProjectId === id) window.ui.closeDashboard(); 
+            window.ui.closeProjectModal();
+        });
         
-        window.deleteProjectPrompt = (id) => ui.openConfirmModal(() => deleteProject(id));
-        window.archiveProjectToggle = (e, id, isArchived) => { e.stopPropagation(); archiveProject(id, isArchived); };
+        window.archiveProjectToggle = async (e, id, isArchived) => { 
+            e.stopPropagation(); 
+            await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', id), { archived: isArchived }); 
+            window.ui.showToast(isArchived ? "已封存" : "已解封"); 
+            if (state.selectedProjectId === id) window.ui.closeDashboard(); 
+        };
 
         window.saveWebhook = async () => {
             if(!state.selectedProjectId) return;
             const url = document.getElementById('view-webhook-input').value.trim();
             await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', state.selectedProjectId), { webhookUrl: url });
-            ui.showToast("Webhook 已更新");
+            window.ui.showToast("Webhook 已更新");
         };
 
         // --- Idea Inbox ---
@@ -594,10 +752,10 @@
             const idea = p.ideas.find(x => x.id === id);
             if(!idea) return;
             await window.deleteIdea(pid, id);
-            ui.switchTab('mvp');
+            window.ui.switchTab('mvp');
             document.getElementById('mvp-action').value = idea.text;
             document.getElementById('mvp-action').focus();
-            ui.showToast("已轉換為草稿！請補齊標籤與指標。");
+            window.ui.showToast("已轉換為草稿！請補齊標籤與指標。");
         };
 
         // --- MVP 任務邏輯 ---
@@ -633,24 +791,18 @@
             await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', pid), { mvpSteps: steps });
         };
 
-        window.deleteMvp = async (pid, sid) => { 
-            const p = state.projects.find(x=>x.id===pid); 
-            await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', pid), { mvpSteps: p.mvpSteps.filter(s => s.id !== sid) }); 
-        };
-
         window.triggerWebhook = async (pid, sid) => {
             const p = state.projects.find(x=>x.id===pid);
-            if(!p || !p.webhookUrl) return ui.showToast("尚未設定 Webhook", "error");
+            if(!p || !p.webhookUrl) return window.ui.showToast("尚未設定 Webhook", "error");
             const step = p.mvpSteps.find(s=>s.id===sid);
-            ui.showToast("正在拋送至 Agent...");
+            window.ui.showToast("正在拋送至 Agent...");
             try {
                 await fetch(p.webhookUrl, {
                     method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
-                    // V3.0 拋送附帶 deliverableType
                     body: JSON.stringify({ projectName: p.name, projectVision: p.vision, deliverableType: p.deliverable, task: step.action, metric: step.metric, group: step.group, status: step.status, notes: step.retro, aiPrompt: step.agentPrompt })
                 });
-                ui.showToast("已成功拋送資料！", "success");
-            } catch(e) { ui.showToast("Webhook 發送可能失敗", "error"); }
+                window.ui.showToast("已成功拋送資料！", "success");
+            } catch(e) { window.ui.showToast("Webhook 發送可能失敗", "error"); }
         };
 
         // --- Render ---
@@ -660,11 +812,11 @@
             DOM.projectCount.innerText = filtered.length;
             DOM.projectList.innerHTML = filtered.length ? filtered.map(p => {
                 const total = p.mvpSteps?.length || 0; const comp = p.mvpSteps?.filter(s=> s.status === 'success' || s.completed === true).length || 0; const pct = total ? Math.round(comp/total*100) : 0;
-                return `<div class="bg-gray-800/80 rounded-xl p-4 border border-gray-700 hover:border-blue-500 cursor-pointer group shadow-sm transition" onclick="ui.openDashboard('${p.id}')">
+                return `<div class="bg-gray-800/80 rounded-xl p-4 border border-gray-700 hover:border-blue-500 cursor-pointer group shadow-sm transition" onclick="window.ui.openDashboard('${p.id}')">
                     <div class="flex justify-between mb-3"><h3 class="font-semibold ${p.archived?'text-gray-500 line-through':'text-gray-100'} truncate w-[70%]">${p.name}</h3>
                     <div class="flex gap-3">
                         <button onclick="archiveProjectToggle(event, '${p.id}', ${!p.archived})" class="text-gray-500 hover:text-yellow-400 transition" title="${p.archived?'解開封存':'封存專案'}"><i class="fa-solid ${p.archived?'fa-box-open':'fa-box-archive'}"></i></button>
-                        <button onclick="event.stopPropagation(); ui.openProjectModal('${p.id}')" class="text-gray-500 hover:text-blue-400 transition"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="event.stopPropagation(); window.ui.openProjectModal('${p.id}')" class="text-gray-500 hover:text-blue-400 transition"><i class="fa-solid fa-pen"></i></button>
                     </div></div>
                     <div class="w-full bg-gray-700 rounded-full h-2 mb-2"><div class="${p.archived?'bg-gray-500':'bg-emerald-400'} h-2 rounded-full transition-all duration-500" style="width: ${pct}%"></div></div>
                     <div class="flex justify-between text-xs text-gray-500 mt-2"><span>ICE 評分: <b class="text-blue-400">${p.score}</b></span><span>驗證: ${comp}/${total}</span></div></div>`;
@@ -672,7 +824,7 @@
         };
 
         const renderDashboardContent = () => {
-            const p = state.projects.find(x => x.id === state.selectedProjectId); if (!p) return ui.closeDashboard();
+            const p = state.projects.find(x => x.id === state.selectedProjectId); if (!p) return window.ui.closeDashboard();
             DOM.dashboardTitle.innerText = p.name;
             
             // 渲染點子牆
@@ -726,7 +878,7 @@
                         <div class="text-[11px] text-gray-500 font-medium flex items-center">${metaHtml}</div>
                         <div class="flex gap-2 items-center">
                             ${webhookBtnHtml}
-                            <button onclick="ui.openTaskDetailModal('${p.id}', '${s.id}')" class="text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg transition shadow"><i class="fa-solid fa-clipboard-list mr-1"></i> 規劃</button>
+                            <button onclick="window.ui.openTaskDetailModal('${p.id}', '${s.id}')" class="text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg transition shadow"><i class="fa-solid fa-clipboard-list mr-1"></i> 規劃</button>
                         </div>
                     </div>
                 </li>`;
@@ -734,7 +886,6 @@
             
             // 渲染市場與願景
             document.getElementById('view-vision').innerText = p.vision || '尚未設定專案願景與脈絡。';
-            // 顯示產出標籤
             const dMap = {'Strategy':'企劃與結構', 'Content':'長文 / 電子書', 'Media':'影音腳本 / 圖像', 'Code':'獨立程式碼 / Function', 'Publishing':'自動發布任務', 'Custom':'自訂'};
             document.getElementById('view-deliverable').innerText = dMap[p.deliverable] || p.deliverable || '企劃與結構';
 
@@ -761,7 +912,7 @@
             Chart.defaults.color = '#94a3b8'; Chart.defaults.font.family = 'Inter';
             state.chartInstance = new Chart(document.getElementById('iceChart').getContext('2d'), {
                 type: 'bubble', plugins: [quadrantPlugin], data: { datasets: [{ data: [] }] },
-                options: { responsive: true, maintainAspectRatio: false, layout: { padding: 10 }, scales: { x: { min: 0.5, max: 10.5, title: { display: true, text: '容易度 (Ease) →', color: '#e2e8f0'} }, y: { min: 0.5, max: 10.5, title: { display: true, text: '影響力 (Impact) →', color: '#e2e8f0'} } }, plugins: { legend: { display: false } }, onClick: (e, els) => els.length ? ui.openDashboard(state.chartInstance.data.datasets[0].data[els[0].index].raw.id) : ui.closeDashboard() }
+                options: { responsive: true, maintainAspectRatio: false, layout: { padding: 10 }, scales: { x: { min: 0.5, max: 10.5, title: { display: true, text: '容易度 (Ease) →', color: '#e2e8f0'} }, y: { min: 0.5, max: 10.5, title: { display: true, text: '影響力 (Impact) →', color: '#e2e8f0'} } }, plugins: { legend: { display: false } }, onClick: (e, els) => els.length ? window.ui.openDashboard(state.chartInstance.data.datasets[0].data[els[0].index].raw.id) : window.ui.closeDashboard() }
             });
         };
 
@@ -799,6 +950,11 @@
                         if(isSuccess) statusIcon = '<span class="ml-2 text-[10px] font-bold text-emerald-400 bg-emerald-900/40 px-2 py-0.5 rounded border border-emerald-500/40"><i class="fa-solid fa-check"></i> 達標</span>';
                         else if(isPivot) statusIcon = '<span class="ml-2 text-[10px] font-bold text-red-400 bg-red-900/40 px-2 py-0.5 rounded border border-red-500/40"><i class="fa-solid fa-rotate-left"></i> 軸轉</span>';
                         
+                        let webhookBtnHtml = '';
+                        if(p.webhookUrl) {
+                            webhookBtnHtml = `<button onclick="triggerWebhook('${p.id}', '${t.id}')" class="text-[11px] font-bold bg-indigo-900/60 text-indigo-300 border border-indigo-500/50 hover:bg-indigo-600 hover:text-white px-2 py-1.5 rounded-lg transition shadow shrink-0 mr-2"><i class="fa-solid fa-paper-plane"></i></button>`;
+                        }
+
                         html += `<div class="bg-gray-900 p-3.5 rounded-xl border-2 ${isSuccess?'border-emerald-500/40':(isPivot?'border-red-500/40':'border-gray-700')}">
                             <div class="flex justify-between items-start">
                                 <div class="text-sm ${isSuccess?'text-gray-500 line-through':'text-gray-100'} font-bold mb-1 flex-1 pr-2 leading-tight">${groupHtml}🎯 ${aText}</div>
@@ -806,7 +962,10 @@
                             </div>
                             <div class="flex justify-between items-end mt-2">
                                 <div class="text-xs font-medium text-indigo-300 truncate pr-2">📊 ${mText}</div>
-                                <button onclick="ui.openTaskDetailModal('${p.id}', '${t.id}')" class="text-[11px] font-bold bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded-lg transition shadow shrink-0"><i class="fa-solid fa-pen"></i> 編輯</button>
+                                <div class="flex">
+                                    ${webhookBtnHtml}
+                                    <button onclick="window.ui.openTaskDetailModal('${p.id}', '${t.id}')" class="text-[11px] font-bold bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded-lg transition shadow shrink-0"><i class="fa-solid fa-pen"></i> 規劃</button>
+                                </div>
                             </div>
                         </div>`;
                     });
