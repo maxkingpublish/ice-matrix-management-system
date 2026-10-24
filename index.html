@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ICE 專案決策系統 v3.06</title>
+    <title>ICE 專案決策系統 v3.07</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -315,7 +315,7 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
+    <!-- V3.07 Settings Modal (支援模型名稱自訂) -->
     <div id="settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-[70] opacity-0 transition-opacity p-4">
         <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-lg transform scale-95 transition-transform duration-300 relative flex flex-col">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-gray-500 to-gray-400 rounded-t-2xl"></div>
@@ -325,10 +325,10 @@
             </div>
             <div class="p-6 space-y-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">選擇 AI 供應商</label>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">選擇 AI 供應商 (任務拆解大腦)</label>
                     <select id="ai-provider" onchange="window.toggleAiProvider()" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition shadow-inner appearance-none">
                         <option value="gemini">☁️ 雲端模型 (Google Gemini)</option>
-                        <option value="local">🖥️ 地端模型 (Ollama)</option>
+                        <option value="local">🖥️ 地端模型 (Ollama / 自訂)</option>
                     </select>
                 </div>
                 
@@ -336,20 +336,26 @@
                     <div>
                         <label class="block text-sm font-medium text-blue-400 mb-2">Gemini API Key</label>
                         <input type="password" id="ai-gemini-key" placeholder="AIzaSy..." class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition shadow-inner">
-                        <p class="text-xs text-gray-500 mt-2">API Key 僅儲存於本地 LocalStorage，不會上傳伺服器。</p>
+                        <p class="text-xs text-gray-500 mt-2">API Key 僅儲存於您的瀏覽器本地 (LocalStorage)，不會上傳至伺服器。</p>
+                    </div>
+                    <!-- V3.07 新增：雲端模型名稱自訂 -->
+                    <div>
+                        <label class="block text-sm font-medium text-blue-400 mb-2">雲端模型名稱 (Model Name)</label>
+                        <input type="text" id="ai-gemini-model" placeholder="gemini-2.5-flash" value="gemini-2.5-flash" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition shadow-inner">
+                        <p class="text-xs text-gray-500 mt-2">預設為 gemini-2.5-flash。若遇到 404 找不到模型錯誤，可在此手動更改對應版本 (如 gemini-2.0-flash 或 gemini-1.5-pro)。</p>
                     </div>
                 </div>
 
                 <div id="ai-local-section" class="space-y-4 hidden">
                     <div class="bg-yellow-900/20 border border-yellow-700/30 p-3 rounded-lg mb-2">
-                        <p class="text-xs text-yellow-500 leading-relaxed"><i class="fa-solid fa-triangle-exclamation"></i> V3.0 暫不支援直接呼叫地端模型 API 進行前端渲染，此為 V3.x 預留介面。</p>
+                        <p class="text-xs text-yellow-500 leading-relaxed"><i class="fa-solid fa-triangle-exclamation"></i> V3.0 暫不支援直接呼叫地端模型 API 進行前端渲染，此介面為 V3.x 擴充做準備。</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-purple-400 mb-2">Endpoint URL</label>
                         <input type="text" id="ai-local-endpoint" placeholder="http://127.0.0.1:11434/api/generate" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 transition shadow-inner">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-purple-400 mb-2">Model Name</label>
+                        <label class="block text-sm font-medium text-purple-400 mb-2">Local Model Name</label>
                         <input type="text" id="ai-local-model" placeholder="llama3.1" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 transition shadow-inner">
                     </div>
                 </div>
@@ -409,11 +415,12 @@
             },
             openSettingsModal: () => {
                 if(!state.userId) return window.ui.showToast("請先登入 Google 帳號", "error");
-                const settings = JSON.parse(localStorage.getItem(`ice_ai_${state.userId}`)) || { provider: 'gemini', geminiKey: '', localEndpoint: '', localModel: '' };
-                document.getElementById('ai-provider').value = settings.provider;
-                document.getElementById('ai-gemini-key').value = settings.geminiKey;
-                document.getElementById('ai-local-endpoint').value = settings.localEndpoint;
-                document.getElementById('ai-local-model').value = settings.localModel;
+                const settings = JSON.parse(localStorage.getItem(`ice_ai_${state.userId}`)) || { provider: 'gemini', geminiKey: '', geminiModel: 'gemini-2.5-flash', localEndpoint: '', localModel: '' };
+                document.getElementById('ai-provider').value = settings.provider || 'gemini';
+                document.getElementById('ai-gemini-key').value = settings.geminiKey || '';
+                document.getElementById('ai-gemini-model').value = settings.geminiModel || 'gemini-2.5-flash';
+                document.getElementById('ai-local-endpoint').value = settings.localEndpoint || '';
+                document.getElementById('ai-local-model').value = settings.localModel || '';
                 window.toggleAiProvider();
                 const m = document.getElementById('settings-modal');
                 m.classList.remove('hidden'); m.classList.add('flex'); 
@@ -526,6 +533,7 @@
             const settings = {
                 provider: document.getElementById('ai-provider').value,
                 geminiKey: document.getElementById('ai-gemini-key').value.trim(),
+                geminiModel: document.getElementById('ai-gemini-model').value.trim() || 'gemini-2.5-flash',
                 localEndpoint: document.getElementById('ai-local-endpoint').value.trim(),
                 localModel: document.getElementById('ai-local-model').value.trim()
             };
@@ -540,7 +548,7 @@
             if(!p) return;
             if(!p.vision) return window.ui.showToast('請先至「專案設定」填寫專案願景！AI 需要北極星。', 'error');
 
-            const settings = JSON.parse(localStorage.getItem(`ice_ai_${state.userId}`)) || { provider: 'gemini', geminiKey: '' };
+            const settings = JSON.parse(localStorage.getItem(`ice_ai_${state.userId}`)) || { provider: 'gemini', geminiKey: '', geminiModel: 'gemini-2.5-flash' };
 
             if (settings.provider === 'local') {
                 return window.ui.showToast('地端模式尚未實作完整串接，請先使用雲端 Gemini 測試。', 'error');
@@ -564,16 +572,18 @@
                 { "action": "具體行動(15字內)", "metric": "驗證指標(15字內)", "group": "分類標籤(如:前端)" }
             ]`;
 
+            // V3.07: 動態帶入用戶設定的模型名稱 (預設為 gemini-2.5-flash)
+            const modelName = settings.geminiModel || 'gemini-2.5-flash';
+
             try {
-                // V3.05: Corrected the endpoint back to the officially supported gemini-1.5-flash
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${settings.geminiKey}`, {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${settings.geminiKey}`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                 });
                 
                 if(!res.ok) {
                     const errBody = await res.text();
-                    alert(`【開發者除錯模式】\nHTTP Status: ${res.status}\n\nGoogle API 回傳錯誤:\n${errBody}`);
+                    alert(`【開發者除錯模式】\nHTTP Status: ${res.status}\n\nGoogle API 回傳錯誤:\n${errBody}\n\n請嘗試至「AI 設定」更換雲端模型名稱。`);
                     throw new Error(`API 錯誤 (${res.status})`);
                 }
                 
