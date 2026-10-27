@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ICE 專案決策系統 v3.09</title>
+    <title>ICE 專案決策系統 v3.10</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -107,9 +107,9 @@
                         <div class="mb-8 bg-gray-800 p-5 md:p-6 rounded-2xl border border-gray-700 shadow-xl shrink-0 relative">
                             <div class="flex justify-between items-center mb-4">
                                 <h4 class="text-base font-bold text-emerald-400"><i class="fa-solid fa-flask"></i> 建立 MVP 驗證假說</h4>
-                                <button type="button" onclick="window.generateMvpsByAI()" class="text-xs font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-3 py-1.5 rounded-lg shadow-lg flex items-center gap-1 transition"><i class="fa-solid fa-wand-magic-sparkles"></i> ✨ AI 自動拆解</button>
+                                <button type="button" onclick="window.generateMvpsByAI()" class="text-xs font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-3 py-1.5 rounded-lg shadow-lg flex items-center gap-1 transition"><i class="fa-solid fa-wand-magic-sparkles"></i> ✨ AI 自動拆解 (含 Prompt)</button>
                             </div>
-                            <p class="text-sm text-gray-400 mb-5 leading-relaxed">您可以點擊上方按鈕讓 AI 根據專案願景自動生成任務，或是手動新增。</p>
+                            <p class="text-sm text-gray-400 mb-5 leading-relaxed">您可以點擊上方按鈕讓 AI 根據專案願景自動生成任務與專屬提示詞，或是手動新增。</p>
                             <form id="mvp-form" class="flex flex-col gap-4">
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div class="md:col-span-2"><label class="block text-xs text-gray-400 mb-1.5 font-medium">1. 採取行動 (Action)</label><input type="text" id="mvp-action" required placeholder="例：在落地頁加入 Email 訂閱框" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 outline-none transition"></div>
@@ -211,7 +211,7 @@
                             <button onclick="window.triggerWebhookFromModal()" class="text-xs font-bold bg-blue-900/60 text-blue-300 border border-blue-500/50 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg transition shadow"><i class="fa-solid fa-paper-plane"></i> 拋送 Webhook</button>
                         </div>
                         <p class="text-xs text-gray-500 mb-2">專為這個任務設計的 AI 提示詞。未來可透過 Webhook 傳送給 Langflow 總路由處理。</p>
-                        <textarea id="task-modal-prompt" rows="3" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-purple-500 transition shadow-inner" placeholder="例如：請根據上述筆記的連結，幫我產出一份給工程師看的規格書..."></textarea>
+                        <textarea id="task-modal-prompt" rows="5" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 transition shadow-inner leading-relaxed" placeholder="例如：請根據上述筆記的連結，幫我產出一份給工程師看的規格書..."></textarea>
                     </div>
                 </section>
             </div>
@@ -540,6 +540,7 @@
             window.ui.closeSettingsModal();
         };
 
+        // --- V3.10: Update Prompt to extract Agent Prompt dynamically ---
         window.generateMvpsByAI = async () => {
             if(!state.userId || !state.selectedProjectId) return;
             const p = state.projects.find(x => x.id === state.selectedProjectId);
@@ -555,19 +556,22 @@
                 return window.ui.showToast('請先至上方「⚙️ AI 設定」填寫您的 Gemini API Key！', 'error');
             }
 
-            window.ui.showToast('✨ AI 正在拆解任務中，請稍候...', 'success');
+            window.ui.showToast('✨ AI 正在拆解任務與 Prompt，請稍候...', 'success');
 
-            const prompt = `你是一個矽谷資深產品經理。請根據以下專案資訊，幫我拆解出 3 到 5 個具體的 MVP (最小可行性產品) 驗證任務。
+            const prompt = `你是一個矽谷資深產品經理與 AI 架構師。請根據以下專案資訊，幫我拆解出 3 到 5 個具體的 MVP (最小可行性產品) 驗證任務。
+            同時，請為每個任務預先寫好一段準備交給「下游 AI Agent」執行的專屬提示詞 (Prompt)。
+            
             專案名稱：${p.name}
             專案願景與目標：${p.vision}
             目標受眾：${p.audience}
             競爭優勢：${p.advantages}
+            產出型態：${p.deliverable}
 
             【強制格式限制】
             請「只」輸出 JSON 陣列，絕對不要包含 Markdown 標記 (例如 \`\`\`json)，也不要有任何前後解釋性文字。
-            每個任務包含三個屬性字串：
+            每個任務包含四個屬性字串：
             [
-                { "action": "具體行動(15字內)", "metric": "驗證指標(15字內)", "group": "分類標籤(如:前端)" }
+                { "action": "具體行動(15字內)", "metric": "驗證指標(15字內)", "group": "分類標籤(如:前端)", "agentPrompt": "給下游 AI 執行的具體指令(50-100字，明確說明要產出什麼格式與重點)" }
             ]`;
 
             const modelName = settings.geminiModel || 'gemini-2.5-flash';
@@ -598,15 +602,24 @@
                 let steps = [...(p.mvpSteps || [])];
                 let nextOrder = steps.length;
 
+                // V3.10: Map the newly generated agentPrompt correctly into the step object
                 tasks.forEach(t => {
                     steps.push({
-                        id: crypto.randomUUID(), action: t.action || '未命名行動', metric: t.metric || '無指標', group: t.group || '',
-                        status: 'pending', startDate: '', endDate: '', retro: '', agentPrompt: '', order: nextOrder++
+                        id: crypto.randomUUID(), 
+                        action: t.action || '未命名行動', 
+                        metric: t.metric || '無指標', 
+                        group: t.group || '',
+                        status: 'pending', 
+                        startDate: '', 
+                        endDate: '', 
+                        retro: '', 
+                        agentPrompt: t.agentPrompt || '', 
+                        order: nextOrder++
                     });
                 });
 
                 await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', p.id), { mvpSteps: steps });
-                window.ui.showToast('✨ AI 任務拆解完成！', 'success');
+                window.ui.showToast('✨ AI 任務與提示詞拆解完成！', 'success');
 
             } catch (error) {
                 console.error("AI Generation Error:", error);
@@ -807,7 +820,6 @@
             await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', pid), { mvpSteps: steps });
         };
 
-        // --- V3.09: Delete MVP Task ---
         window.deleteMvpPrompt = (pid, sid) => {
             window.ui.openConfirmModal(async () => {
                 const p = state.projects.find(x=>x.id===pid); 
@@ -816,7 +828,6 @@
             });
         };
 
-        // --- V3.09: Demote MVP to Idea ---
         window.demoteMvp = async (pid, sid) => {
             const p = state.projects.find(x => x.id === pid);
             if (!p) return;
@@ -906,7 +917,6 @@
                     webhookBtnHtml = `<button onclick="window.triggerWebhook('${p.id}', '${s.id}')" class="text-[11px] font-bold bg-indigo-900/60 text-indigo-300 border border-indigo-500/50 hover:bg-indigo-600 hover:text-white px-2.5 py-1.5 rounded-lg transition shadow shrink-0 mr-2"><i class="fa-solid fa-paper-plane mr-1"></i> Webhook</button>`;
                 }
 
-                // V3.09: Add Delete Button and Demote Button
                 return `<li class="p-4 md:p-5 rounded-2xl bg-gray-900 border-2 ${isSuccess?'border-emerald-500/40 opacity-70':(isPivot?'border-red-500/40 opacity-70':'border-gray-700')} relative shadow-sm transition hover:border-gray-500">
                     <div class="absolute top-3 right-3 flex gap-1 items-center">
                         <button onclick="window.moveMvp('${p.id}', '${s.id}', -1)" class="text-gray-500 hover:text-white p-2 transition ${idx === 0 ? 'opacity-20 cursor-not-allowed' : ''}"><i class="fa-solid fa-arrow-up"></i></button>
