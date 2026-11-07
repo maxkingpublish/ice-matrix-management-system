@@ -199,6 +199,27 @@
                 </section>
 
                 <section class="space-y-4 shrink-0">
+                    <!-- 🚀 新增功能：多層級結構大綱產生器 -->
+                    <div class="bg-gray-900/50 p-4 rounded-xl border border-gray-700 md:col-span-2">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="flex items-center space-x-2 cursor-pointer group">
+                                <input type="checkbox" id="task-modal-enable-outline" onchange="window.toggleOutlineBuilder()" class="w-4 h-4 text-emerald-500 bg-gray-800 border-gray-600 rounded focus:ring-0 focus:ring-offset-0 cursor-pointer">
+                                <span class="text-sm font-semibold text-gray-300 group-hover:text-emerald-400 transition flex items-center">
+                                    <i class="fa-solid fa-sitemap mr-1.5 text-emerald-500"></i>啟用結構化大綱 (最多 3 層)
+                                </span>
+                            </label>
+                        </div>
+                        <div id="outlineBuilderContainer" class="hidden space-y-3 pt-3 border-t border-gray-700/70">
+                            <p class="text-[11px] text-gray-500">建立專案、寫作大綱或步驟邏輯。每層項目皆可利用 <span class="text-gray-400 font-bold">▲ ▼</span> 互換順序，儲存時將自動打包轉換附加至筆記：</p>
+                            <div id="outlineLevel1List" class="space-y-3">
+                                <!-- 動態渲染 L1 ~ L3 列表 -->
+                            </div>
+                            <button type="button" onclick="window.addOutlineItem(1)" class="px-3 py-2 bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-600/50 text-emerald-400 hover:text-white text-xs rounded-xl font-bold transition-all flex items-center space-x-1.5 shadow">
+                                <i class="fa-solid fa-plus"></i><span>新增大綱主項目 (L1)</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <div>
                         <h4 class="text-sm font-semibold text-yellow-400 mb-2"><i class="fa-solid fa-pen-to-square"></i> 執行筆記與參考資料</h4>
                         <p class="text-xs text-gray-500 mb-2">可貼上 Google 文件連結、心得紀錄、或是執行過程中的發現。</p>
@@ -383,7 +404,7 @@
             appId: "1:526672568868:web:8ce69400bbeee3f1e4eeb1"
         };
 
-        const state = { projects: [], selectedProjectId: null, userId: null, appId: 'ice-matrix-app', chartInstance: null, activeTab: 'ideas', calendarDate: new Date(), selectedDateStr: null, viewingArchived: false };
+        const state = { projects: [], selectedProjectId: null, userId: null, appId: 'ice-matrix-app', chartInstance: null, activeTab: 'ideas', calendarDate: new Date(), selectedDateStr: null, viewingArchived: false, currentOutlineData: [] };
         let unsubscribeProjects = null;
 
         const DOM = {
@@ -498,6 +519,14 @@
                 document.getElementById('task-modal-end').value = task.endDate || '';
                 document.getElementById('task-modal-notes').value = task.retro || ''; 
                 document.getElementById('task-modal-prompt').value = task.agentPrompt || ''; 
+
+                // 初始化大綱資料與 UI
+                state.currentOutlineData = task.outlineData || [];
+                const enableOutlineCheckbox = document.getElementById('task-modal-enable-outline');
+                if (enableOutlineCheckbox) {
+                    enableOutlineCheckbox.checked = task.enableOutline || false;
+                    window.toggleOutlineBuilder(task.enableOutline || false);
+                }
 
                 window.updateTaskStatusModalUI(task.status || 'pending');
 
@@ -654,18 +683,37 @@
 
             const newStartDate = document.getElementById('task-modal-start').value;
             const newEndDate = document.getElementById('task-modal-end').value;
-            const newNotes = document.getElementById('task-modal-notes').value.trim();
+            let rawNotes = document.getElementById('task-modal-notes').value.trim();
             const newPrompt = document.getElementById('task-modal-prompt').value.trim();
+            const enableOutline = document.getElementById('task-modal-enable-outline') ? document.getElementById('task-modal-enable-outline').checked : false;
+
+            // 將結構化大綱編譯為乾淨的 Markdown 格式，附在筆記頂部讓 Langflow Agent 好讀取
+            if (enableOutline && state.currentOutlineData && state.currentOutlineData.length > 0) {
+                let outlineStr = "### 📋 結構化執行大綱\n";
+                state.currentOutlineData.forEach((l1, i) => {
+                    outlineStr += `\n**${i + 1}. ${l1.text || '未命名主項'}**\n`;
+                    (l1.children || []).forEach((l2, j) => {
+                        outlineStr += `   - ${l2.text || '未命名子項'}\n`;
+                        (l2.children || []).forEach((l3, k) => {
+                            outlineStr += `     * ${l3.text || ''}\n`;
+                        });
+                    });
+                });
+                outlineStr += "\n---\n" + rawNotes;
+                rawNotes = outlineStr; // 取代原有的 notes
+            }
 
             await updateDoc(doc(db, 'artifacts', state.appId, 'users', state.userId, 'projects', pid), { 
                 mvpSteps: p.mvpSteps.map(s => s.id === sid ? {
                     ...s, 
                     status: currentModalTaskStatus, 
                     completed: currentModalTaskStatus === 'success', 
-                    retro: newNotes,
+                    retro: rawNotes,
                     agentPrompt: newPrompt,
                     startDate: newStartDate,
-                    endDate: newEndDate
+                    endDate: newEndDate,
+                    enableOutline: enableOutline,
+                    outlineData: state.currentOutlineData || []
                 } : s) 
             }); 
             window.ui.showToast("任務設定已儲存");
@@ -1042,6 +1090,129 @@
                 html += `<div class="${cls}" onclick="window.selectDate('${dateStr}')"><span class="text-sm font-bold z-10">${i}</span>${hasTasks ? '<div class="absolute bottom-1.5 w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_5px_rgba(52,211,153,0.8)]"></div>' : ''}</div>`;
             }
             document.getElementById('calendar-grid').innerHTML = html;
+        };
+
+        // ================= 🚀 多層級結構大綱產生器 (核心邏輯) =================
+        window.toggleOutlineBuilder = (forceState = null) => {
+            const container = document.getElementById('outlineBuilderContainer');
+            const checkbox = document.getElementById('task-modal-enable-outline');
+            const isChecked = forceState !== null ? forceState : checkbox.checked;
+            
+            if (forceState !== null) checkbox.checked = forceState;
+            
+            if (isChecked) {
+                container.classList.remove('hidden');
+                window.renderOutline();
+            } else {
+                container.classList.add('hidden');
+            }
+        };
+
+        window.renderOutline = () => {
+            const container = document.getElementById('outlineLevel1List');
+            container.innerHTML = '';
+
+            if (!state.currentOutlineData || state.currentOutlineData.length === 0) {
+                container.innerHTML = `<div class="text-[11px] text-gray-500 italic py-2 px-1 border border-dashed border-gray-700 rounded-lg text-center">尚未建立大綱，點擊下方按鈕新增主項目 (L1)。</div>`;
+                return;
+            }
+
+            state.currentOutlineData.forEach((l1, idx1) => {
+                const l2ChildrenHtml = (l1.children || []).map((l2, idx2) => {
+                    const l3ChildrenHtml = (l2.children || []).map((l3, idx3) => `
+                        <div class="flex items-center space-x-1.5 mt-1.5 pl-2 relative group/l3">
+                            <div class="absolute left-0 top-1/2 w-2 border-t border-gray-600"></div>
+                            <span class="text-[9px] bg-yellow-500/20 text-yellow-400 px-1 py-0.5 rounded font-bold shrink-0">L3</span>
+                            <input type="text" value="${l3.text || ''}" oninput="window.updateOutlineText([${idx1}, ${idx2}, ${idx3}], this.value)" class="flex-1 bg-black/50 border border-gray-700/80 rounded px-2 py-1 text-[11px] text-gray-300 focus:outline-none focus:border-yellow-500/70" placeholder="輸入細節...">
+                            <div class="flex space-x-0.5 opacity-0 group-hover/l3:opacity-100 transition-opacity">
+                                <button type="button" onclick="window.moveOutlineItem([${idx1}, ${idx2}, ${idx3}], -1)" class="px-1.5 py-1 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded text-[9px]" title="上移">▲</button>
+                                <button type="button" onclick="window.moveOutlineItem([${idx1}, ${idx2}, ${idx3}], 1)" class="px-1.5 py-1 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded text-[9px]" title="下移">▼</button>
+                                <button type="button" onclick="window.deleteOutlineItem([${idx1}, ${idx2}, ${idx3}])" class="px-1.5 py-1 bg-red-900/30 hover:bg-red-800 text-red-400 rounded text-[9px]" title="刪除">✕</button>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    return `
+                        <div class="p-2 bg-gray-900/60 rounded-lg border border-gray-750 space-y-1 mt-1.5 shadow-inner relative group/l2">
+                            <div class="flex items-center space-x-1.5">
+                                <span class="text-[9px] bg-blue-500/20 text-blue-400 px-1 py-0.5 rounded font-bold shrink-0">L2</span>
+                                <input type="text" value="${l2.text || ''}" oninput="window.updateOutlineText([${idx1}, ${idx2}], this.value)" class="flex-1 bg-gray-950 border border-gray-700 rounded px-2 py-1 text-xs text-gray-200 focus:outline-none focus:border-blue-500" placeholder="輸入子項目...">
+                                <div class="flex space-x-0.5 opacity-0 group-hover/l2:opacity-100 transition-opacity">
+                                    <button type="button" onclick="window.moveOutlineItem([${idx1}, ${idx2}], -1)" class="px-1.5 py-1 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded text-[10px]" title="上移">▲</button>
+                                    <button type="button" onclick="window.moveOutlineItem([${idx1}, ${idx2}], 1)" class="px-1.5 py-1 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded text-[10px]" title="下移">▼</button>
+                                    <button type="button" onclick="window.deleteOutlineItem([${idx1}, ${idx2}])" class="px-1.5 py-1 bg-red-900/30 hover:bg-red-800 text-red-400 rounded text-[10px]" title="刪除">✕</button>
+                                </div>
+                            </div>
+                            <div class="pl-2.5 border-l border-gray-700/50 ml-2 space-y-1">
+                                ${l3ChildrenHtml}
+                                <button type="button" onclick="window.addOutlineItem(3, ${idx1}, ${idx2})" class="text-[10px] text-yellow-500/80 hover:text-yellow-400 mt-1 block px-1 py-0.5 hover:bg-yellow-500/10 rounded transition">+ 加入細節</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML += `
+                    <div class="p-3 bg-gray-850 rounded-xl border border-gray-700 space-y-2 shadow group/l1 relative">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-[10px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded font-bold shrink-0">L1</span>
+                            <input type="text" value="${l1.text || ''}" oninput="window.updateOutlineText([${idx1}], this.value)" class="flex-1 bg-gray-900 border border-gray-600 rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-green-500 font-semibold" placeholder="輸入主項目內容...">
+                            <div class="flex space-x-1 opacity-0 group-hover/l1:opacity-100 transition-opacity">
+                                <button type="button" onclick="window.moveOutlineItem([${idx1}], -1)" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded text-xs" title="上移">▲</button>
+                                <button type="button" onclick="window.moveOutlineItem([${idx1}], 1)" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded text-xs" title="下移">▼</button>
+                                <button type="button" onclick="window.deleteOutlineItem([${idx1}])" class="px-2 py-1 bg-red-900/50 hover:bg-red-700 text-red-300 rounded text-xs" title="刪除">✕</button>
+                            </div>
+                        </div>
+                        <div class="pl-2.5 border-l-2 border-gray-700 ml-2 mt-2 space-y-1">
+                            ${l2ChildrenHtml}
+                            <button type="button" onclick="window.addOutlineItem(2, ${idx1})" class="text-[11px] text-blue-400/80 hover:text-blue-400 mt-1.5 block px-1.5 py-1 hover:bg-blue-500/10 rounded transition">+ 新增子項目</button>
+                        </div>
+                    </div>
+                `;
+            });
+        };
+
+        window.addOutlineItem = (level, idx1 = null, idx2 = null) => {
+            if (!state.currentOutlineData) state.currentOutlineData = [];
+            if (level === 1) {
+                state.currentOutlineData.push({ text: '', children: [] });
+            } else if (level === 2 && idx1 !== null) {
+                if (!state.currentOutlineData[idx1].children) state.currentOutlineData[idx1].children = [];
+                state.currentOutlineData[idx1].children.push({ text: '', children: [] });
+            } else if (level === 3 && idx1 !== null && idx2 !== null) {
+                if (!state.currentOutlineData[idx1].children[idx2].children) state.currentOutlineData[idx1].children[idx2].children = [];
+                state.currentOutlineData[idx1].children[idx2].children.push({ text: '' });
+            }
+            window.renderOutline();
+        };
+
+        window.updateOutlineText = (path, value) => {
+            if (path.length === 1) state.currentOutlineData[path[0]].text = value;
+            else if (path.length === 2) state.currentOutlineData[path[0]].children[path[1]].text = value;
+            else if (path.length === 3) state.currentOutlineData[path[0]].children[path[1]].children[path[2]].text = value;
+        };
+
+        window.deleteOutlineItem = (path) => {
+            if (path.length === 1) state.currentOutlineData.splice(path[0], 1);
+            else if (path.length === 2) state.currentOutlineData[path[0]].children.splice(path[1], 1);
+            else if (path.length === 3) state.currentOutlineData[path[0]].children[path[1]].children.splice(path[2], 1);
+            window.renderOutline();
+        };
+
+        window.moveOutlineItem = (path, direction) => {
+            const getArray = (p) => {
+                if (p.length === 1) return state.currentOutlineData;
+                if (p.length === 2) return state.currentOutlineData[p[0]].children;
+                if (p.length === 3) return state.currentOutlineData[p[0]].children[p[1]].children;
+            };
+            const arr = getArray(path);
+            const index = path[path.length - 1];
+            const targetIndex = index + direction;
+            if (targetIndex >= 0 && targetIndex < arr.length) {
+                const temp = arr[index];
+                arr[index] = arr[targetIndex];
+                arr[targetIndex] = temp;
+                window.renderOutline();
+            }
         };
 
         document.getElementById('project-form').addEventListener('submit', window.saveProject);
